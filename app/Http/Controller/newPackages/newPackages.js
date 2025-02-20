@@ -11,6 +11,7 @@ newPackages_obj.newpackageSave = async(req,res)=>{
       operator,
       ship,
       region,
+      cruise_nights,
       general_type,
       general_Start,
       general_end,
@@ -28,6 +29,8 @@ newPackages_obj.newpackageSave = async(req,res)=>{
       package_cruise_value4,
       package_cruise_value5,
       package_cruise_value6,
+      package_cruise_value_pp_inside,
+      package_cruise_value_solo_inside,
       fare_sets,
       itinerary,
       adjustment_type,
@@ -60,7 +63,9 @@ newPackages_obj.newpackageSave = async(req,res)=>{
       health_fitness_types,
       useful_types,
       cruises,
-      holidays
+      holidays,
+      sales_banner_image,
+      cruise_banner_image
     } = req.body;
 
     if(fare_sets){
@@ -156,12 +161,12 @@ newPackages_obj.newpackageSave = async(req,res)=>{
     }else{
       holidays = []
     }
-   
     if(itinerary){
       itinerary = JSON.parse(itinerary)
     }else{
       itinerary = []
     }
+    // console.log("--- itinerary---",itinerary);
      // Constructing fareSets array
     let  cruiseImageBase64 = null;
     if(cruise_image){
@@ -171,14 +176,24 @@ newPackages_obj.newpackageSave = async(req,res)=>{
         req.files["cruise_image"]?.[0]
       );
     }
-    
-    const salesBannerImageBase64 = await customFunction.uploadImageOnAwsReturnUrl(
-      req.files["sales_banner_image"]?.[0]
-    );
 
-    const cruiseBannerImageBase64 = await customFunction.uploadImageOnAwsReturnUrl(
-      req.files["cruise_banner_image"]?.[0]
-    );
+    let  salesBannerImageBase64 = null;
+    if(sales_banner_image){
+      salesBannerImageBase64 = sales_banner_image;
+    }else if(req.files["sales_banner_image"]?.[0]){
+      salesBannerImageBase64 = await customFunction.uploadImageOnAwsReturnUrl(
+        req.files["sales_banner_image"]?.[0]
+      );
+    }
+
+    let  cruiseBannerImageBase64 = null;
+    if(cruise_banner_image){
+      cruiseBannerImageBase64 = cruise_banner_image;
+    }else if(req.files["cruise_banner_image"]?.[0]){
+      cruiseBannerImageBase64 = await customFunction.uploadImageOnAwsReturnUrl(
+        req.files["cruise_banner_image"]?.[0]
+      );
+    }
 
     let  mobileCruiseBannerImageBase64 = null;
     if(mobile_cruise_banner_image){
@@ -189,34 +204,49 @@ newPackages_obj.newpackageSave = async(req,res)=>{
       );
     }
 
+    // if(tour_list){
+    //  tour_list = JSON.parse(tour_list)
+    //  const tourListWithImages = tour_list.map((tourItem, index) => {
+    //   return {
+    //     name: tourItem.name,
+    //     icon: req.files['tour_list[]']?.[index]
+    //       ? convertFileToBase64(req.files['tour_list[]']?.[index])
+    //       : null,
+          
+    //   };
+    // });
+    // tour_list = tourListWithImages;
+    // }else{
+    //   tour_list = []
+    // }
     if (tour_list) {
-        tour_list = JSON.parse(tour_list);
-        if (Array.isArray(tour_list) && tour_list.length > 0) {
-          const updatedTourList = [];
-          for (const [index, tourItem] of tour_list.entries()) {
-            const icon = req.files['tour_list[]']?.[index]
-              ? await customFunction.uploadImageOnAwsReturnUrl(req.files['tour_list[]'][index])
-              : null;
-            updatedTourList.push({
-              name: tourItem?.name || "", 
-              icon: icon,
-            });
-          }
-    
-          tour_list = updatedTourList;
-        } else {
-          tour_list = []; 
+      tour_list = JSON.parse(tour_list);
+      if (Array.isArray(tour_list) && tour_list.length > 0) {
+        const updatedTourList = [];
+        for (const [index, tourItem] of tour_list.entries()) {
+          const icon = req.files['tour_list[]']?.[index]
+            ? await customFunction.uploadImageOnAwsReturnUrl(req.files['tour_list[]'][index])
+            : null;
+          updatedTourList.push({
+            name: tourItem?.name || "", 
+            icon: icon,
+          });
         }
+  
+        tour_list = updatedTourList;
+      } else {
+        tour_list = []; 
+      }
     } else {
       tour_list = [];
     }
-    
     const formData = new formSchemaModel({
       name: name,
       reference: reference,
       operator: operator,
       ship: ship,
       region: region,
+      cruise_nights : cruise_nights,
       general_type: general_type,
       general_Start: general_Start,
       general_end: general_end,
@@ -238,6 +268,8 @@ newPackages_obj.newpackageSave = async(req,res)=>{
       package_cruise_value4: package_cruise_value4,
       package_cruise_value5: package_cruise_value5,
       package_cruise_value6: package_cruise_value6,
+      package_cruise_value_pp_inside : package_cruise_value_pp_inside,
+      package_cruise_value_solo_inside : package_cruise_value_solo_inside,
       fare_sets: fare_sets,
       adjustment_type : adjustment_type,
       adjustment_amount : adjustment_amount,
@@ -271,11 +303,13 @@ newPackages_obj.newpackageSave = async(req,res)=>{
       holidays : holidays
     });
  
-    const formResult = await formData.save();;
+    // console.log("-- formData---",formData);
+    const formResult = await formData.save();
+    console.log("---formResult--- ",formResult);
     if (formResult) {
       return res.status(200).json({ message: "Succesfully Insert Data ", data: formResult , success : true , status : 200});
     } else {
-      res.status(400).json({ message: "Internal Server Error", data: "", success : false , status : 400});
+      res.status(400).json({ message: "Error in insert data  ", data: "", success : false , status : 400});
     }
   } catch (error) {
     console.error(error);
@@ -454,7 +488,7 @@ newPackages_obj.newpackageUpdate = async(req,res)=>{
     if(updateFormData) {
       return res.status(200).json({ message: "Succesfully update Data ", data: updateFormData , success : true , status : 200 });
     } else {
-      res.status(500).json({ message: "Error in updating Data", data: "", success : false , status:400 });
+      res.status(400).json({ message: "Error in updating Data", data: "", success : false , status:400 });
     }
   } catch (error) {
     console.error(error);

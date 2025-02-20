@@ -38,6 +38,7 @@ const itinerarySchema = new mongoose.Schema(
         check_in_date: { type: String, default: null },
         check_out_date: { type: String, default: null },
         description : { type : String , default : null},
+        day : { type : String , default : null}
     }
 );
 
@@ -129,6 +130,10 @@ const  formScehma = new mongoose.Schema({
         type :  String,
         default : null
     },
+    cruise_nights : {
+        type :  String,
+        default : null
+    },
     general_type : {
         type :  String,
         default : null
@@ -210,6 +215,14 @@ const  formScehma = new mongoose.Schema({
         default : null
     },
     package_cruise_value6: {
+        type : String,
+        default : null
+    },
+    package_cruise_value_pp_inside: {
+        type : String,
+        default : null
+    },
+    package_cruise_value_solo_inside: {
         type : String,
         default : null
     },
@@ -330,7 +343,6 @@ const  formScehma = new mongoose.Schema({
     }
 
 })
-
 
 const formSchemaModel = mongoose.model('newPackages', formScehma);
 

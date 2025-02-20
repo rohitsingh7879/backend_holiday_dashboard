@@ -46,6 +46,7 @@ customFunction.uploadImageOnAwsReturnUrl = async (file)=>{
     const publicUrl = `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${fileName}`;
     return publicUrl;
   } catch (error) {
+    fs.unlinkSync(file.path); 
     console.error("Error reading file:", error);
     return null;
   }
