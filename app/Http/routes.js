@@ -11,6 +11,7 @@ const enquiryController = require("../Http/Controller/enquiry/enquiry")
 router.post('/newpackage/',middleware.uploadImage,newPackageController.newpackageSave)
 router.get('/newpackage/',newPackageController.newpackageGet)
 router.patch('/newpackage/:id',middleware.uploadImageUpdate ,newPackageController.newpackageUpdate)
+router.get('/newpackage/searchFilter', newPackageController.newpackageSearchFilter)
 // operator
 router.post('/operator/',operatorControlller.operatorSave)
 router.get('/operator/',operatorControlller.operatorGet)

@@ -1,5 +1,6 @@
 const formSchemaModel = require("../../../Models/newPackagesModel")
 const  customFunction  = require("../../../util/customFunction")
+const moment = require('moment')
 const newPackages_obj ={};
 
 
@@ -68,6 +69,13 @@ newPackages_obj.newpackageSave = async(req,res)=>{
       cruise_banner_image
     } = req.body;
 
+    if (general_Start) {
+      general_Start = moment(new Date(general_Start)).unix(); 
+    }
+
+    if(general_end){
+      general_end = moment(new Date(general_end)).unix(); 
+    }
     if(fare_sets){
       fare_sets = JSON.parse(fare_sets)
     }else{
@@ -163,6 +171,15 @@ newPackages_obj.newpackageSave = async(req,res)=>{
     }
     if(itinerary){
       itinerary = JSON.parse(itinerary)
+      if (Array.isArray(itinerary)) {
+        itinerary = itinerary.map(item => ({
+            ...item,
+            check_in_date: item.check_in_date ? moment(item.check_in_date).unix() : null,
+            check_out_date: item.check_out_date ? moment(item.check_out_date).unix() : null
+        }));
+      } else {
+          itinerary = [];
+      }
     }else{
       itinerary = []
     }
@@ -495,5 +512,41 @@ newPackages_obj.newpackageUpdate = async(req,res)=>{
     res.status(500).json({ message: "Internal Server Error", data: "" , success : false , status : 500});
   }
 }
+
+newPackages_obj.newpackageSearchFilter = async (req, res) => {
+  try {
+      let { cruise_category, departure_month, destination, cruise_line, cruise_ship, ports, duration, price_range } = req.query;
+      let filter = {};
+      if (cruise_category) filter.general_categories = cruise_category;
+      if (destination) filter.region = destination;
+      if(cruise_line) filter.operator = cruise_line;
+      if(cruise_ship) filter.ship = cruise_ship;
+      if (ports) {
+        filter.itinerary = { $elemMatch: { port: ports } };
+      }
+      if (duration) {
+        let durationValue = Number(duration);
+        if (!isNaN(durationValue) && durationValue >= 0 && durationValue <= 50) {
+          filter.cruise_nights = { $gte: 0, $lte: durationValue }; 
+        }
+      }
+
+      if(price_range){
+        filter.package_cruise_value1 = price_range;
+      }
+      if (departure_month) {
+        departure_month = moment(departure_month, "DD MMMM YYYY").unix();
+        filter.itinerary = { $elemMatch: { check_in_date: { $gte: departure_month } } };
+      }
+      const searchFilterData = await formSchemaModel.find(filter);
+      
+      return res.status(200).json({ message: "fetch data Successfully", success : true, data: searchFilterData ,status:200 });
+
+  } catch (error) {
+    console.error("Error in searchCruises:", error);
+    return res.status(500).json({ message: "Internal Server Error", data: "" , success : false , status : 500 });
+  }
+};
+
 
 module.exports = newPackages_obj;
