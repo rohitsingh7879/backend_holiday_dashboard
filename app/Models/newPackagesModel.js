@@ -147,8 +147,8 @@ const  formScehma = new mongoose.Schema({
         default : Date.now
     },
     general_categories : {
-         type :  String,
-         default : null
+        type: [String],
+        default: []
     },
     general_range : {
         type :  String,
