@@ -16,11 +16,13 @@ middleware.uploadImage = (req, res, next) => {
   });
 
   const upload = multer({ storage: storage }).fields([
-    { name: "cruise_image", maxCount: 1 },
-    { name: "sales_banner_image", maxCount: 1 },
-    { name: "cruise_banner_image", maxCount: 1 },
-    { name: "mobile_cruise_banner_image", maxCount: 1 },
-    { name: "tour_list[]"} 
+      { name: "cruise_image", maxCount: 1 },
+      { name: "sales_banner_image", maxCount: 1 },
+      { name: "cruise_banner_image", maxCount: 1 },
+      { name: "mobile_cruise_banner_image", maxCount: 1 },
+      { name: "tour_list[]"},
+      // { name: "whats_included[]"},
+      // {name : "summary[]"} 
   ]);
 
   upload(req, res, (err) => {

@@ -4,7 +4,7 @@ const moment = require('moment')
 const newPackages_obj ={};
 
 
-newPackages_obj.newpackageSave = async(req,res)=>{
+newPackages_obj.newpackageSave =   async (req, res) => {
   try {
     let {
       name,
@@ -24,14 +24,22 @@ newPackages_obj.newpackageSave = async(req,res)=>{
       overview,
       whats_included,
       extras,
-      package_cruise_value1,
-      package_cruise_value2,
-      package_cruise_value3,
-      package_cruise_value4,
-      package_cruise_value5,
-      package_cruise_value6,
-      package_cruise_value_pp_inside,
-      package_cruise_value_solo_inside,
+      insidePerPersonWas,
+      insidePerPersonNow,
+      outsidePerPersonWas,
+      outsidePerPersonNow,
+      balconyPerPersonWas,
+      balconyPerPersonNow,
+      suitePerPersonWas,
+      suitePerPersonNow,
+      insideSoloWas,
+      insideSoloNow,
+      outsideSoloWas,
+      outsideSoloNow,
+      balconySoloWas,
+      balconySoloNow,
+      SuiteSoloWas,
+      SuiteSoloNow,
       fare_sets,
       itinerary,
       adjustment_type,
@@ -45,6 +53,8 @@ newPackages_obj.newpackageSave = async(req,res)=>{
       tour_list,
       cruise_image,
       mobile_cruise_banner_image,
+      sales_banner_image,
+      cruise_banner_image,
       teaser,
       introduction ,
       unique_feature,
@@ -64,10 +74,9 @@ newPackages_obj.newpackageSave = async(req,res)=>{
       health_fitness_types,
       useful_types,
       cruises,
-      holidays,
-      sales_banner_image,
-      cruise_banner_image
+      holidays
     } = req.body;
+    // console.log("--fare_sets first-- ",req.body);
 
     if (general_Start) {
       general_Start = moment(new Date(general_Start)).unix(); 
@@ -82,118 +91,121 @@ newPackages_obj.newpackageSave = async(req,res)=>{
       fare_sets = []
     }
 
-    if(accommodation){
-      accommodation = JSON.parse(accommodation);
-    }else{
-      accommodation = {}
+    try {
+      accommodation = JSON.parse(accommodation) || {};
+    } catch (error) {
+      accommodation = {};
     }
 
-    if(dining){
-      dining = JSON.parse(dining);
-    }else{
-      dining = {}
+    try {
+      dining = JSON.parse(dining) || {};
+    } catch (error) {
+      dining = {};
     }
 
-    if(enrichment){
-      enrichment = JSON.parse(enrichment);
-    }else{
-      enrichment = {}
-    }
-    if(entertainment){
-      entertainment = JSON.parse(entertainment);
-    }else{
-      entertainment = {}
+    try {
+      enrichment = JSON.parse(enrichment) || {};
+    } catch (error) {
+      enrichment = {};
     }
 
-    if(health_and_fitness){
-      health_and_fitness = JSON.parse(health_and_fitness);
-    }else{
-      health_and_fitness = {}
-    }
-    if(kids_and_teens){
-      kids_and_teens = JSON.parse(kids_and_teens);
-    }else{
-      kids_and_teens = {}
-    }
-    if(accomodation_types){
-      accomodation_types = JSON.parse(accomodation_types);
-    }else{
-      accomodation_types = []
+    try {
+      entertainment = JSON.parse(entertainment) || {};
+    } catch (error) {
+      entertainment = {};
     }
 
-    if(deckplans){
-      deckplans = JSON.parse(deckplans);
-    }else{
-      deckplans = []
+    try {
+      health_and_fitness = JSON.parse(health_and_fitness) || {};
+    } catch (error) {
+      health_and_fitness = {};
     }
 
-    if(dining_options){
-      dining_options = JSON.parse(dining_options);
-    }else{
-      dining_options = []
+    try {
+      kids_and_teens = JSON.parse(kids_and_teens) || {};
+    } catch (error) {
+      kids_and_teens = {};
+    }
+
+    try {
+      accomodation_types = JSON.parse(accomodation_types) || [];
+    } catch (error) {
+      accomodation_types = [];
+    }
+
+    try {
+      deckplans = JSON.parse(deckplans) || [];
+    } catch (error) {
+      deckplans = [];
+    }
+
+    try {
+      dining_options = JSON.parse(dining_options) || [];
+    } catch (error) {
+      dining_options = [];
     }
 
 
-    if(enrichment_types){
-      enrichment_types = JSON.parse(enrichment_types);
-    }else{
-      enrichment_types = []
+    try {
+      enrichment_types = JSON.parse(enrichment_types) || [];
+    } catch (error) {
+      enrichment_types = [];
     }
 
-    if(entertainment_types){
-      entertainment_types = JSON.parse(entertainment_types);
-    }else{
-      entertainment_types = []
+    try {
+      entertainment_types = JSON.parse(entertainment_types) || [];
+    } catch (error) {
+      entertainment_types = [];
     }
 
-    if(health_fitness_types){
-      health_fitness_types = JSON.parse(health_fitness_types);
-    }else{
-      health_fitness_types = []
+    try {
+      health_fitness_types = JSON.parse(health_fitness_types) || [];
+    } catch (error) {
+      health_fitness_types = [];
+    }
+    
+    try {
+      useful_types = JSON.parse(useful_types) || [];
+    } catch (error) {
+      useful_types = [];
     }
 
-    if(useful_types){
-      useful_types = JSON.parse(useful_types);
-    }else{
-      useful_types = []
-    }
-
-    if(cruises){
-      cruises = JSON.parse(cruises);
-    }else{
-      cruises = []
+    try {
+      cruises = JSON.parse(cruises) || [];
+    } catch (error) {
+      cruises = [];
     }
   
-    if(holidays){
-      holidays = JSON.parse(holidays);
-    }else{
-      holidays = []
+    try {
+      holidays = JSON.parse(holidays) || [];
+    } catch (error) {
+      holidays = [];
     }
+
     if(itinerary){
-      itinerary = JSON.parse(itinerary)
-      if (Array.isArray(itinerary)) {
-        itinerary = itinerary.map(item => ({
-            ...item,
-            check_in_date: item.check_in_date ? moment(item.check_in_date).unix() : null,
-            check_out_date: item.check_out_date ? moment(item.check_out_date).unix() : null
-        }));
-      } else {
-          itinerary = [];
-      }
+        itinerary = JSON.parse(itinerary)
+        if (Array.isArray(itinerary)) {
+            itinerary = itinerary.map(item => ({
+                ...item,
+                check_in_date: item.check_in_date ? moment(item.check_in_date).unix() : null,
+                check_out_date: item.check_out_date ? moment(item.check_out_date).unix() : null
+            }));
+        } else {
+            itinerary = [];
+        }
     }else{
       itinerary = []
     }
-    // console.log("--- itinerary---",itinerary);
-     // Constructing fareSets array
-    let  cruiseImageBase64 = null;
-    if(cruise_image){
-      cruiseImageBase64 = cruise_image;
-    }else if(req.files["cruise_image"]?.[0]){
-      cruiseImageBase64 = await customFunction.uploadImageOnAwsReturnUrl(
-        req.files["cruise_image"]?.[0]
-      );
-    }
 
+    let  cruiseImageBase64 = null;
+     if(cruise_image){
+       cruiseImageBase64 = cruise_image;
+     }else if(req.files["cruise_image"]?.[0]){
+       cruiseImageBase64 = await customFunction.uploadImageOnAwsReturnUrl(
+         req.files["cruise_image"]?.[0]
+       );
+     }
+    
     let  salesBannerImageBase64 = null;
     if(sales_banner_image){
       salesBannerImageBase64 = sales_banner_image;
@@ -221,21 +233,6 @@ newPackages_obj.newpackageSave = async(req,res)=>{
       );
     }
 
-    // if(tour_list){
-    //  tour_list = JSON.parse(tour_list)
-    //  const tourListWithImages = tour_list.map((tourItem, index) => {
-    //   return {
-    //     name: tourItem.name,
-    //     icon: req.files['tour_list[]']?.[index]
-    //       ? convertFileToBase64(req.files['tour_list[]']?.[index])
-    //       : null,
-          
-    //   };
-    // });
-    // tour_list = tourListWithImages;
-    // }else{
-    //   tour_list = []
-    // }
     if (tour_list) {
       tour_list = JSON.parse(tour_list);
       if (Array.isArray(tour_list) && tour_list.length > 0) {
@@ -259,7 +256,7 @@ newPackages_obj.newpackageSave = async(req,res)=>{
     }
 
     if(general_categories){
-      general_categories = JSON.parse(general_categories)
+        general_categories = JSON.parse(general_categories)
     }else{
       general_categories = []
     }
@@ -285,14 +282,22 @@ newPackages_obj.newpackageSave = async(req,res)=>{
       overview : overview,
       whats_included : whats_included,
       extras : extras,
-      package_cruise_value1: package_cruise_value1,
-      package_cruise_value2: package_cruise_value2,
-      package_cruise_value3: package_cruise_value3,
-      package_cruise_value4: package_cruise_value4,
-      package_cruise_value5: package_cruise_value5,
-      package_cruise_value6: package_cruise_value6,
-      package_cruise_value_pp_inside : package_cruise_value_pp_inside,
-      package_cruise_value_solo_inside : package_cruise_value_solo_inside,
+      insidePerPersonWas : insidePerPersonWas,
+      insidePerPersonNow :insidePerPersonNow ,
+      outsidePerPersonWas : outsidePerPersonWas,
+      outsidePerPersonNow : outsidePerPersonNow,
+      balconyPerPersonWas : balconyPerPersonWas,
+      balconyPerPersonNow : balconyPerPersonNow,
+      suitePerPersonWas : suitePerPersonWas,
+      suitePerPersonNow : suitePerPersonNow,
+      insideSoloWas : insideSoloWas,
+      insideSoloNow : insideSoloNow, 
+      outsideSoloWas :outsideSoloWas ,
+      outsideSoloNow : outsideSoloNow,
+      balconySoloWas :balconySoloWas ,
+      balconySoloNow : balconySoloNow,
+      SuiteSoloWas : SuiteSoloWas,
+      SuiteSoloNow : SuiteSoloNow,
       fare_sets: fare_sets,
       adjustment_type : adjustment_type,
       adjustment_amount : adjustment_amount,
@@ -330,13 +335,13 @@ newPackages_obj.newpackageSave = async(req,res)=>{
     const formResult = await formData.save();
     console.log("---formResult--- ",formResult);
     if (formResult) {
-      return res.status(200).json({ message: "Succesfully Insert Data ", data: formResult , success : true , status : 200});
+      return res.status(200).json({ message: "Succesfully Insert Data ", data: formResult , success : true , status:200});
     } else {
-      res.status(400).json({ message: "Error in insert data  ", data: "", success : false , status : 400});
+      res.status(400).json({ message: "Error in  Insert Data", data: "", success : false , status:400 });
     }
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Internal Server Error", data: "", success : false, status : 500 });
+    res.status(500).json({ message: "Internal Server Error", data: "", success : false, status:500 });
   }
 }
 
@@ -519,17 +524,21 @@ newPackages_obj.newpackageUpdate = async(req,res)=>{
   }
 }
 
-newPackages_obj.newpackageSearchFilter = async (req, res) => {
+newPackages_obj.newpackageSearchFilter =  async (req, res) => {
   try {
+      // console.log("---search Filter-----", req.query);
       let { cruise_category, departure_month, destination, cruise_line, cruise_ship, ports, duration, price_range, recommended } = req.query;
+      // Constructing a dynamic filter object
       let filter = {};
+     
       if (cruise_category ) {
         cruise_category = JSON.parse(cruise_category)
         if (Array.isArray(cruise_category) && cruise_category.length > 0) {
           // filter.general_categories = cruise_category;
           filter.general_categories = { $in: cruise_category };
         }
-      }
+      }  
+      // console.log("---cruise_category last-- ",cruise_category);
       if (destination) filter.region = destination;
       if(cruise_line) filter.operator = cruise_line;
       if(cruise_ship) filter.ship = cruise_ship;
@@ -537,7 +546,7 @@ newPackages_obj.newpackageSearchFilter = async (req, res) => {
         filter.itinerary = { $elemMatch: { port: ports } };
       }
       if (duration) {
-        let durationValue = Number(duration);
+        let durationValue = Number(duration); // Convert to number
         if (!isNaN(durationValue) && durationValue >= 0 && durationValue <= 50) {
           filter.cruise_nights = { $gte: durationValue  }; 
         }
@@ -550,43 +559,83 @@ newPackages_obj.newpackageSearchFilter = async (req, res) => {
         departure_month = moment(departure_month, "DD MMMM YYYY").unix();
         filter.itinerary = { $elemMatch: { check_in_date: { $gte: departure_month } } };
       }
-
       let SortQuery = {};
       if(recommended){
         if(recommended == "Price (Low to High)"){
-          SortQuery['package_cruise_value1'] = 1
+          SortQuery['package_cruise_value1_numeric'] = 1
         }else if(recommended == "Price (High to Low)"){
-          SortQuery['package_cruise_value1'] = -1
+          SortQuery['package_cruise_value1_numeric'] = -1
         }else if(recommended == "Departure Date (Soonest First)"){
           SortQuery['itinerary.check_in_date.0'] = 1;
         }else if(recommended == "Departure Date (Furthest First)"){
           SortQuery['last_check_in_date'] = -1;
         }
       }
-      // console.log("--- SortQuery---",SortQuery);
+
+      console.log("-- recommend--",recommended);
+      //  console.log("--- SortQuery---",SortQuery);
       let searchFilterData = [];
-      if(recommended  && Object.keys(SortQuery).length > 0){
-        // searchFilterData = await formSchemaModel.find(filter).sort(SortQuery);
+      // if(recommended  && Object.keys(SortQuery).length > 0){
+      //   // searchFilterData = await formSchemaModel.find(filter).sort(SortQuery);
+      //   searchFilterData = await formSchemaModel.aggregate([
+      //     { $match: filter },
+      //     { 
+      //       $addFields: { 
+      //         package_cruise_value1_numeric: {
+      //           $cond: {
+      //             if: { $or: [
+      //               { $eq: ["$package_cruise_value1", ""] }, 
+      //               { $eq: ["$package_cruise_value1", null] }
+      //             ] },
+      //             then: 0,
+      //             else: { $toDouble: "$package_cruise_value1" } 
+      //           }
+      //         },
+      //         last_check_in_date: { $arrayElemAt: ["$itinerary.check_in_date", 0] }
+      //       } 
+      //     },
+      //     { $sort: SortQuery }
+      //   ]);
+      // }else{
+      //   searchFilterData = await formSchemaModel.find(filter);
+      // }
+      if (recommended && Object.keys(SortQuery).length > 0) {
         searchFilterData = await formSchemaModel.aggregate([
-          { $match: filter },
-          { 
-            $addFields: { 
-              last_check_in_date: { $arrayElemAt: ["$itinerary.check_in_date", 0] }
-            } 
-          },
-          { $sort: SortQuery }
+            { $match: filter },
+            { 
+                $addFields: { 
+                    package_cruise_value1_numeric: {
+                        $cond: {
+                            if: { 
+                                $or: [
+                                    { $eq: ["$package_cruise_value1", ""] }, 
+                                    { $eq: ["$package_cruise_value1", null] },
+                                    { $eq: ["$package_cruise_value1", undefined] },
+                                ] 
+                            },
+                            then: 0,
+                            else: { $toDouble: "$package_cruise_value1" }   
+                        }
+                    },
+                    last_check_in_date: { $arrayElemAt: ["$itinerary.check_in_date", 0] }
+                } 
+            },
+            { 
+              $sort: SortQuery 
+            }
         ]);
-      }else{
-        searchFilterData = await formSchemaModel.find(filter);
+      } else {
+          searchFilterData = await formSchemaModel.find(filter);
       }
-      
+      // console.log("---searchFilterData--- ",searchFilterData);
+    
       return res.status(200).json({ message: "fetch data Successfully", success : true, data: searchFilterData ,status:200 });
 
   } catch (error) {
-    console.error("Error in searchCruises:", error);
-    return res.status(500).json({ message: "Internal Server Error", data: "" , success : false , status : 500 });
+      console.error("Error in searchCruises:", error);
+      return res.status(500).json({ message: "Internal Server Error", data: "" , success : false , status : 500 });
   }
-};
+}
 
 
 module.exports = newPackages_obj;
