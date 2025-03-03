@@ -202,6 +202,10 @@ const  formScehma = new mongoose.Schema({
         type : String,
         default : null
     },
+    priceStartFrom : {
+        type : String,
+        default : null
+    },
     insidePerPersonWas: {
         type : String,
         default : null
