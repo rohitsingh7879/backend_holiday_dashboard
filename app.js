@@ -6,14 +6,16 @@ const database = require('./config/database');
 const routes = require('./app/Http/routes');
 
 const app = express()
-app.use(cors())
+app.use(cors({
+    origin: '*'
+}))
 app.use(express.json());
 app.use(express.urlencoded({extended : true}))
 
 mongoose.connect(database.mongodb.uri,{
     useNewUrlParser : true
 }).then(()=>{
-    console.log("Mongodb is connectd...")
+    console.log("Mongodb is connected...")
 }).catch((err)=>{
     console.log("Mongodb is not connected...")
 })

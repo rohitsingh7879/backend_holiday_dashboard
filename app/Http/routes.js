@@ -5,6 +5,7 @@ const operatorControlller = require("../Http/Controller/operator/operator")
 const newPackageController = require("../Http/Controller/newPackages/newPackages")
 const middleware = require("../Http/Middleware")
 const enquiryController = require("../Http/Controller/enquiry/enquiry")
+const newBannerController = require("../Http/Controller/newBanner/newBanner")
 
 
 // add New Packages
@@ -21,6 +22,11 @@ router.get('/contact/',contactController.contactGet)
 // enquiry
 router.post('/enquiry/',enquiryController.enquirySave)
 router.get('/enquiry/',enquiryController.enquiryGet)
+// banner
+router.post('/newBanner/',middleware.uploadBannerImage,newBannerController.newBannerSave)
+router.get('/newBanner/',newBannerController.newBannerGet)
+router.patch('/newBanner/:id',middleware.uploadBannerImage, newBannerController.newBannerUpdate)
+router.delete('/newBanner/:id',newBannerController.newBannerDelete);
 
 
 
