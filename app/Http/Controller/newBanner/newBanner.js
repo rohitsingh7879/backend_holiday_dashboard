@@ -77,8 +77,7 @@ banner_obj.newBannerUpdate = async(req,res)=>{
         updateData.bannerDescription = bannerDescription;
       } 
 
-
-      if (bannerStatus && typeof bannerStatus === "boolean") {
+      if (bannerStatus) {
         updateData.bannerStatus = bannerStatus;
       }
       if (bannerImageBase64){
