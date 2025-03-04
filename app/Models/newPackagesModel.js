@@ -193,15 +193,16 @@ const  formScehma = new mongoose.Schema({
         type : String,
         default : null
     },
-    whats_included : {
-        type : String,
-        default : null
-    },
-    // whats_included : [tourSchema],
-    extras : {
-        type : String,
-        default : null
-    },
+    // whats_included : {
+    //     type : String,
+    //     default : null
+    // },
+    whats_included : [tourSchema],
+    // extras : {
+    //     type : String,
+    //     default : null
+    // },
+    addOn : [tourSchema],
     priceStartFrom : {
         type : String,
         default : null

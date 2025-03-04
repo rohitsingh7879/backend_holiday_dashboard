@@ -23,7 +23,7 @@ newPackages_obj.newpackageSave =   async (req, res) => {
       text_banner,
       overview,
       whats_included,
-      extras,
+      addOn,
       priceStartFrom,
       insidePerPersonWas,
       insidePerPersonNow,
@@ -256,6 +256,50 @@ newPackages_obj.newpackageSave =   async (req, res) => {
       tour_list = [];
     }
 
+    if (whats_included) {
+      whats_included = JSON.parse(whats_included);
+      if (Array.isArray(whats_included) && whats_included.length > 0) {
+        const updatedwhatInculded = [];
+        for (const [index, whatIncludedItem] of whats_included.entries()) {
+          const icon = req.files['whats_included[]']?.[index]
+            ? await customFunction.uploadImageOnAwsReturnUrl(req.files['whats_included[]'][index])
+            : null;
+          updatedwhatInculded.push({
+            name: whatIncludedItem?.name || "", 
+            icon: icon,
+          });
+        }
+  
+        whats_included = updatedwhatInculded;
+      } else {
+        whats_included = []; 
+      }
+    } else {
+      whats_included = [];
+    }
+
+    if (addOn) {
+      addOn = JSON.parse(addOn);
+      if (Array.isArray(addOn) && addOn.length > 0) {
+        const updatedaddOn= [];
+        for (const [index, addOnItem] of addOn.entries()) {
+          const icon = req.files['addOn[]']?.[index]
+            ? await customFunction.uploadImageOnAwsReturnUrl(req.files['addOn[]'][index])
+            : null;
+            updatedaddOn.push({
+            name: addOnItem?.name || "", 
+            icon: icon,
+          });
+        }
+  
+        addOn = updatedaddOn;
+      } else {
+        addOn = []; 
+      }
+    } else {
+      addOn = [];
+    }
+
     if(general_categories){
         general_categories = JSON.parse(general_categories)
     }else{
@@ -282,7 +326,8 @@ newPackages_obj.newpackageSave =   async (req, res) => {
       text_banner : text_banner,
       overview : overview,
       whats_included : whats_included,
-      extras : extras,
+      // extras : extras,
+      addOn : addOn,
       priceStartFrom : priceStartFrom,
       insidePerPersonWas : insidePerPersonWas,
       insidePerPersonNow :insidePerPersonNow ,
@@ -335,7 +380,7 @@ newPackages_obj.newpackageSave =   async (req, res) => {
  
     // console.log("-- formData---",formData);
     const formResult = await formData.save();
-    console.log("---formResult--- ",formResult);
+    // console.log("---formResult--- ",formResult);
     if (formResult) {
       return res.status(200).json({ message: "Succesfully Insert Data ", data: formResult , success : true , status:200});
     } else {
