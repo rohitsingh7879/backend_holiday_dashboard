@@ -13,6 +13,7 @@ router.post('/newpackage/',middleware.uploadImage,newPackageController.newpackag
 router.get('/newpackage/',newPackageController.newpackageGet)
 router.patch('/newpackage/:id',middleware.uploadImageUpdate ,newPackageController.newpackageUpdate)
 router.get('/newpackage/searchFilter', newPackageController.newpackageSearchFilter)
+router.patch('/newpackage/pickCruiseCollection/:id',newPackageController.newpackagePickCruiseCollection)
 // operator
 router.post('/operator/',operatorControlller.operatorSave)
 router.get('/operator/',operatorControlller.operatorGet)

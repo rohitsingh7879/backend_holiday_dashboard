@@ -684,5 +684,33 @@ newPackages_obj.newpackageSearchFilter =  async (req, res) => {
   }
 }
 
+newPackages_obj.newpackagePickCruiseCollection = async (req,res)=>{
+  try {
+    const {id} = req.params;
+    if(!id){
+      res.status(400).json({ message: "Missing data", data: "" , success : false , status : 400 });
+    }
+    const getData = await formSchemaModel.find({ _id: id });
+    if(!getData ||  getData.length === 0){
+      res.status(400).json({ message: "Data not Found", data: '' , success : false ,  status : 400 });
+    }
+
+    const {statusPickCollection}  = req.body;
+    const updateData = {};
+    if (statusPickCollection !== undefined && statusPickCollection !== null) {
+      updateData.statusPickCollection = statusPickCollection;
+    } 
+
+    const updateStatus = await formSchemaModel.updateOne({ _id: id }, { $set: updateData });
+    if(updateStatus) {
+      return res.status(200).json({ message: "Succesfully update Status", data: updateStatus , success : true , status : 200 });
+    } else {
+      res.status(400).json({ message: "Error in updating Data", data: "", success : false , status:400 });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error", data: "" , success : false , status : 500});
+  }
+}
 
 module.exports = newPackages_obj;

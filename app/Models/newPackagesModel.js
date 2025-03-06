@@ -385,8 +385,11 @@ const  formScehma = new mongoose.Schema({
     holidays : {
         type : [holidaysSchema],
         default : [] 
+    },
+    statusPickCollection : {
+        type: Boolean,
+        default: false
     }
-
 })
 
 const formSchemaModel = mongoose.model('newPackages', formScehma);
