@@ -427,6 +427,7 @@ newPackages_obj.newpackageUpdate = async(req,res)=>{
       operator,
       ship,
       region,
+      cruise_nights,
       general_type,
       general_Start,
       general_end,
@@ -436,14 +437,43 @@ newPackages_obj.newpackageUpdate = async(req,res)=>{
       sales_message,
       text_banner,
       overview,
-      whats_included,
-      extras,
+      // whats_included,
+      // addOn,
+      priceStartFrom,
+      insidePerPersonWas,
+      insidePerPersonNow,
+      outsidePerPersonWas,
+      outsidePerPersonNow,
+      balconyPerPersonWas,
+      balconyPerPersonNow,
+      suitePerPersonWas,
+      suitePerPersonNow,
+      insideSoloWas,
+      insideSoloNow,
+      outsideSoloWas,
+      outsideSoloNow,
+      balconySoloWas,
+      balconySoloNow,
+      SuiteSoloWas,
+      SuiteSoloNow,
+      fare_sets,
       itinerary,
+      adjustment_type,
+      adjustment_amount,
+      restrict_start_date,
+      restrict_end_date,
+      options_name,
+      options_amount,
+      options_select,
+      // tour_title,
+      // tour_list,
       cruise_image,
       mobile_cruise_banner_image,
       sales_banner_image,
-      cruise_banner_image
-    } = req.body;
+      cruise_banner_image,
+      } = req.body;
+
+      // console.log("--- req.body---",req.body);
     if(!id){
       res.status(400).json({ message: "Missing data", data: "" , success : false , status : 400 });
     }
@@ -451,46 +481,7 @@ newPackages_obj.newpackageUpdate = async(req,res)=>{
     if(!getData ||  getData.length === 0){
       res.status(400).json({ message: "Data not Found", data: '' , success : false ,  status : 400 });
     }
-    if(itinerary){
-      itinerary = JSON.parse(itinerary)
-    }else{
-      itinerary = []
-    }
 
-    let  cruiseImageBase64 = null;
-    if(cruise_image){
-      cruiseImageBase64 = cruise_image;
-    }else if(req.files["cruise_image"]?.[0]){
-      cruiseImageBase64 = await customFunction.uploadImageOnAwsReturnUrl(
-        req.files["cruise_image"]?.[0]
-      );
-    }
-    let  salesBannerImageBase64 = null;
-    if(sales_banner_image){
-      salesBannerImageBase64 = sales_banner_image;
-    }else if(req.files["sales_banner_image"]?.[0]){
-      salesBannerImageBase64 = await customFunction.uploadImageOnAwsReturnUrl(
-        req.files["sales_banner_image"]?.[0]
-      );
-    }
-
-    let  cruiseBannerImageBase64 = null;
-    if(cruise_banner_image){
-      cruiseBannerImageBase64 = cruise_banner_image;
-    }else if(req.files["cruise_banner_image"]?.[0]){
-      cruiseBannerImageBase64 = await customFunction.uploadImageOnAwsReturnUrl(
-        req.files["cruise_banner_image"]?.[0]
-      );
-    }
-
-    let  mobileCruiseBannerImageBase64 = null;
-    if(mobile_cruise_banner_image){
-      mobileCruiseBannerImageBase64 = mobile_cruise_banner_image;
-    }else if(req.files["mobile_cruise_banner_image"]?.[0]){
-      mobileCruiseBannerImageBase64 = await customFunction.uploadImageOnAwsReturnUrl(
-        req.files["mobile_cruise_banner_image"]?.[0]
-      );
-    }
     const updateData = {};
     if(name && name !== null && name !== undefined && name.trim() !== "") {
       updateData.name = name;
@@ -498,6 +489,7 @@ newPackages_obj.newpackageUpdate = async(req,res)=>{
     if (reference && reference !== null && reference !== undefined){
       updateData.reference = reference;
     } 
+
     if (operator && operator !== null && operator !== undefined) {
       updateData.operator = operator;
     }  
@@ -507,18 +499,32 @@ newPackages_obj.newpackageUpdate = async(req,res)=>{
     if (region && region !== null && region !== undefined){
       updateData.region = region;
     } 
+    if (cruise_nights && cruise_nights !== null && cruise_nights !== undefined){
+      updateData.cruise_nights = cruise_nights;
+    }
+    
     if (general_type && general_type !== null && general_type !== undefined){
       updateData.general_type = general_type;
     }
     if (general_Start && general_Start && general_Start !== null && general_Start !== undefined) {
+      general_Start = moment(new Date(general_Start)).unix(); 
       updateData.general_Start = general_Start;
-    }  
+    } 
     if (general_end && general_end !== null && general_end !== undefined){
+      general_end = moment(new Date(general_end)).unix(); 
       updateData.general_end = general_end;
     } 
-    if ( general_categories && general_categories !== null && general_categories !== undefined) {
-      updateData.general_categories = general_categories;
-    }  
+    if (general_categories && general_categories !== null && general_categories !== undefined) {
+      try {
+          const parsedCategories = JSON.parse(general_categories);
+          if (Array.isArray(parsedCategories) && parsedCategories.length > 0) {
+              updateData.general_categories = parsedCategories;
+          }
+      } catch (error) {
+          console.log("--categories error");
+      }
+    }
+  
     if (general_range && general_range !== null && general_range !== undefined) {
       updateData.general_range = general_range;
     } 
@@ -534,32 +540,228 @@ newPackages_obj.newpackageUpdate = async(req,res)=>{
     if ( overview && overview !== null && overview !== undefined){
       updateData.overview = overview;
     }
-    if (whats_included && whats_included !== null && whats_included !== undefined) {
-      updateData.whats_included = whats_included;
-    }  
-    if (extras && extras !== null && extras !== undefined){
-      updateData.extras = extras;
-    } 
+    // if (whats_included && whats_included !== null && whats_included !== undefined) {
+    //   whats_included = JSON.parse(whats_included);
+    //   if (Array.isArray(whats_included) && whats_included.length > 0) {
+    //       const updatedwhatInculded = [];
+    //       for (const [index, whatIncludedItem] of whats_included.entries()) {
+    //           const icon = whatIncludedItem.icon || 
+    //                        (req.files['whats_included[]']?.[index]
+    //                            ? await customFunction.uploadImageOnAwsReturnUrl(req.files['whats_included[]'][index])
+    //                            : null);
+  
+    //           updatedwhatInculded.push({
+    //               name: whatIncludedItem?.name || "", 
+    //               icon: icon,
+    //           });
+    //       }
+  
+    //       updateData.whats_included = updatedwhatInculded;
+    //   }
+    // }
+    
+    // if (addOn && addOn !== null && addOn !== undefined) {
+    //   addOn = JSON.parse(addOn);
+    //   if (Array.isArray(addOn) && addOn.length > 0) {
+    //     const updatedaddOn= [];
+    //     for (const [index, addOnItem] of addOn.entries()) {
+    //       const icon = addOnItem.icon || (req.files['addOn[]']?.[index]
+    //         ? await customFunction.uploadImageOnAwsReturnUrl(req.files['addOn[]'][index])
+    //         : null);
+    //         updatedaddOn.push({
+    //         name: addOnItem?.name || "", 
+    //         icon: icon,
+    //       });
+    //     }
+    //     updateData.addOn = updatedaddOn;
+    //   }
+    // }
+    if (priceStartFrom && priceStartFrom !== null && priceStartFrom !== undefined){
+      updateData.priceStartFrom = priceStartFrom;
+    }
+
+    if (insidePerPersonWas && insidePerPersonWas !== null && insidePerPersonWas !== undefined){
+      updateData.insidePerPersonWas = insidePerPersonWas;
+    }
+    if (insidePerPersonNow && insidePerPersonNow !== null && insidePerPersonNow !== undefined){
+      updateData.insidePerPersonNow = insidePerPersonNow;
+    }
+    if (outsidePerPersonWas && outsidePerPersonWas !== null && outsidePerPersonWas !== undefined){
+      updateData.outsidePerPersonWas = outsidePerPersonWas;
+    }
+    if (outsidePerPersonNow && outsidePerPersonNow !== null && outsidePerPersonNow !== undefined){
+      updateData.outsidePerPersonNow = outsidePerPersonNow;
+    }
+
+    if (balconyPerPersonWas && balconyPerPersonWas !== null && balconyPerPersonWas !== undefined){
+      updateData.balconyPerPersonWas = balconyPerPersonWas;
+    }
+    
+    if (balconyPerPersonNow && balconyPerPersonNow !== null && balconyPerPersonNow !== undefined){
+      updateData.balconyPerPersonNow = balconyPerPersonNow;
+    }
+
+    if (suitePerPersonWas && suitePerPersonWas !== null && suitePerPersonWas !== undefined){
+      updateData.suitePerPersonWas = suitePerPersonWas;
+    }
+
+    if (suitePerPersonNow && suitePerPersonNow !== null && suitePerPersonNow !== undefined){
+      updateData.suitePerPersonNow = suitePerPersonNow;
+    }
+
+    if (insideSoloWas && insideSoloWas !== null && insideSoloWas !== undefined){
+      updateData.insideSoloWas = insideSoloWas;
+    }
+
+    if (insideSoloNow && insideSoloNow !== null && insideSoloNow !== undefined){
+      updateData.insideSoloNow = insideSoloNow;
+    }
+    
+    if (outsideSoloWas && outsideSoloWas !== null && outsideSoloWas !== undefined){
+      updateData.outsideSoloWas = outsideSoloWas;
+    }
+    if (outsideSoloNow && outsideSoloNow !== null && outsideSoloNow !== undefined){
+      updateData.outsideSoloNow = outsideSoloNow;
+    }
+    
+    if (balconySoloWas && balconySoloWas !== null && balconySoloWas !== undefined){
+      updateData.balconySoloWas = balconySoloWas;
+    }
+
+    if (balconySoloNow && balconySoloNow !== null && balconySoloNow !== undefined){
+      updateData.balconySoloNow = balconySoloNow;
+    }
+
+    if (SuiteSoloWas && SuiteSoloWas !== null && SuiteSoloWas !== undefined){
+      updateData.SuiteSoloWas = SuiteSoloWas;
+    }
+
+    if (SuiteSoloNow && SuiteSoloNow !== null && SuiteSoloNow !== undefined){
+      updateData.SuiteSoloNow = SuiteSoloNow;
+    }
+    
+    
+    if(fare_sets && fare_sets != null && fare_sets !== undefined){
+      fare_sets = JSON.parse(fare_sets)
+      if (Array.isArray(fare_sets) && fare_sets.length > 0 && fare_sets.some(fare => fare.fare_set_name || fare.airport_code || fare.deal_code || (Array.isArray(fare.fares) && fare.fares.length > 0))) {
+        updateData.fare_sets = fare_sets;
+      };
+    }
+    
+    
     if (itinerary && itinerary !== null && itinerary !== undefined) {
+      itinerary = JSON.parse(itinerary)
       if (Array.isArray(itinerary) && itinerary.length > 0) {
+        itinerary = itinerary.map(item => ({
+          ...item,
+          check_in_date: item.check_in_date ? moment(item.check_in_date).unix() : null,
+          check_out_date: item.check_out_date ? moment(item.check_out_date).unix() : null
+        }));
         updateData.itinerary = itinerary;
       }
-    }  
-    if (cruise_image && cruise_image !== null && cruise_image !== undefined) {
+    }
+    
+    if(adjustment_type && adjustment_type != null && adjustment_type !== undefined){
+      updateData.adjustment_type = adjustment_type;
+    }
+
+    if(adjustment_amount && adjustment_amount != null && adjustment_amount !== undefined){
+      updateData.adjustment_amount = adjustment_amount;
+    }
+
+    if(restrict_start_date && restrict_start_date != null && restrict_start_date !== undefined){
+      updateData.restrict_start_date = restrict_start_date;
+    }
+    if(restrict_end_date && restrict_end_date != null && restrict_end_date !== undefined){
+      updateData.restrict_end_date = restrict_end_date;
+    }
+    
+    if(options_name && options_name != null && options_name !== undefined){
+      updateData.options_name = options_name;
+    }
+
+    if(options_amount && options_amount != null && options_amount !== undefined){
+      updateData.options_amount = options_amount;
+    }
+    
+    if(options_select && options_select != null && options_select !== undefined){
+      updateData.options_select = options_select;
+    }
+
+    // if(tour_title && tour_title != null && tour_title != undefined){
+    //   updateData.tour_title = tour_title;
+    // }
+
+    // if (tour_list && tour_list !== null && tour_list !== undefined) {
+    //   tour_list = JSON.parse(tour_list);
+    //   if (Array.isArray(tour_list) && tour_list.length > 0) {
+    //     const updatedTourList = [];
+    //     for (const [index, tourItem] of tour_list.entries()) {
+    //       const icon = tourItem.icon || ( req.files['tour_list[]']?.[index]
+    //         ? await customFunction.uploadImageOnAwsReturnUrl(req.files['tour_list[]'][index])
+    //         : null);
+    //       updatedTourList.push({
+    //         name: tourItem?.name || "", 
+    //         icon: icon,
+    //       });
+    //     }
+    //     updateData.tour_list = updatedTourList;
+    //   }
+    // }
+    // console.log("---tour_list--- ",updateData.tour_list);
+
+    let  cruiseImageBase64 = null;
+    if(cruise_image){
+      cruiseImageBase64 = cruise_image;
+    }else if(req.files["cruise_image"]?.[0]){
+      cruiseImageBase64 = await customFunction.uploadImageOnAwsReturnUrl(
+        req.files["cruise_image"]?.[0]
+      );
+    }
+    if (cruiseImageBase64 && cruiseImageBase64 !== null && cruiseImageBase64 !== undefined) {
       updateData.cruise_image = cruiseImageBase64;
-    }  
-    if (mobile_cruise_banner_image && mobile_cruise_banner_image !== null && mobile_cruise_banner_image !== undefined) {
-      updateData.mobile_cruise_banner_image = mobileCruiseBannerImageBase64;
-    }  
-    if (sales_banner_image && sales_banner_image !== null && sales_banner_image !== undefined){
+    }
+    
+    let  salesBannerImageBase64 = null;
+    if(sales_banner_image){
+      salesBannerImageBase64 = sales_banner_image;
+    }else if(req.files["sales_banner_image"]?.[0]){
+      salesBannerImageBase64 = await customFunction.uploadImageOnAwsReturnUrl(
+        req.files["sales_banner_image"]?.[0]
+      );
+    }
+    if (salesBannerImageBase64 && salesBannerImageBase64 !== null && salesBannerImageBase64 !== undefined){
       updateData.sales_banner_image = salesBannerImageBase64
     } 
-    if (cruise_banner_image && cruise_banner_image !== null && cruise_banner_image !== undefined) {
+
+    let  cruiseBannerImageBase64 = null;
+    if(cruise_banner_image){
+      cruiseBannerImageBase64 = cruise_banner_image;
+    }else if(req.files["cruise_banner_image"]?.[0]){
+      cruiseBannerImageBase64 = await customFunction.uploadImageOnAwsReturnUrl(
+        req.files["cruise_banner_image"]?.[0]
+      );
+    }
+    if (cruiseBannerImageBase64 && cruiseBannerImageBase64 !== null && cruiseBannerImageBase64 !== undefined) {
       updateData.cruise_banner_image = cruiseBannerImageBase64;
+    }
+    
+    let  mobileCruiseBannerImageBase64 = null;
+    if(mobile_cruise_banner_image){
+      mobileCruiseBannerImageBase64 = mobile_cruise_banner_image;
+    }else if(req.files["mobile_cruise_banner_image"]?.[0]){
+      mobileCruiseBannerImageBase64 = await customFunction.uploadImageOnAwsReturnUrl(
+        req.files["mobile_cruise_banner_image"]?.[0]
+      );
+    }
+
+    if (mobileCruiseBannerImageBase64 && mobileCruiseBannerImageBase64 !== null && mobileCruiseBannerImageBase64 !== undefined) {
+      updateData.mobile_cruise_banner_image = mobileCruiseBannerImageBase64;
     }  
 
     // Perform the update
     const updateFormData = await formSchemaModel.updateOne({ _id: id }, { $set: updateData });
+    // console.log("--- updateFormData---",updateFormData);
     if(updateFormData) {
       return res.status(200).json({ message: "Succesfully update Data ", data: updateFormData , success : true , status : 200 });
     } else {
