@@ -437,8 +437,8 @@ newPackages_obj.newpackageUpdate = async(req,res)=>{
       sales_message,
       text_banner,
       overview,
-      // whats_included,
-      // addOn,
+      whats_included,
+      addOn,
       priceStartFrom,
       insidePerPersonWas,
       insidePerPersonNow,
@@ -465,8 +465,8 @@ newPackages_obj.newpackageUpdate = async(req,res)=>{
       options_name,
       options_amount,
       options_select,
-      // tour_title,
-      // tour_list,
+      tour_title,
+      tour_list,
       cruise_image,
       mobile_cruise_banner_image,
       sales_banner_image,
@@ -559,6 +559,35 @@ newPackages_obj.newpackageUpdate = async(req,res)=>{
     //       updateData.whats_included = updatedwhatInculded;
     //   }
     // }
+
+    if (whats_included && whats_included !== null && whats_included !== undefined) {
+      try {
+        whats_included = JSON.parse(whats_included);
+        if (Array.isArray(whats_included) && whats_included.length > 0) {
+          const updatedwhatInculded = [];
+          let count = 0; 
+          for (const [index, whatIncludedItem] of whats_included.entries()) {
+            let icon = null;
+            // console.log("--- req.files ---", req.files?.['tour_list[]']);
+            if (whatIncludedItem.icon && typeof whatIncludedItem.icon === "string" && whatIncludedItem.icon.startsWith("http")) {
+              icon = whatIncludedItem.icon;
+            } else if (req.files?.['whats_included[]']?.[count]) { 
+              icon = await customFunction.uploadImageOnAwsReturnUrl(req.files['whats_included[]'][count]);
+              count++; 
+            }
+    
+            updatedwhatInculded.push({
+              name: whatIncludedItem?.name || "", 
+              icon: icon,
+            });
+          }
+    
+          updateData.whats_included = updatedwhatInculded;
+        }
+      } catch (error) {
+        console.error("Error parsing tour_list:", error);
+      }
+    }  
     
     // if (addOn && addOn !== null && addOn !== undefined) {
     //   addOn = JSON.parse(addOn);
@@ -576,6 +605,39 @@ newPackages_obj.newpackageUpdate = async(req,res)=>{
     //     updateData.addOn = updatedaddOn;
     //   }
     // }
+
+    if (addOn && addOn !== null && addOn !== undefined) {
+      try {
+        // console.log("--- addOn---",addOn);
+        addOn = JSON.parse(addOn);
+        // console.log("--- parsed addOn---",addOn);
+        if (Array.isArray(addOn) && addOn.length > 0) {
+          const updatedaddOn = [];
+          let count = 0; 
+          for (const [index, addOnItem] of addOn.entries()) {
+            let icon = null;
+            // console.log("--- req.files ---", req.files?.['tour_list[]']);
+            if (addOnItem.icon && typeof addOnItem.icon === "string" && addOnItem.icon.startsWith("http")) {
+              icon = addOnItem.icon;
+            } else if (req.files?.['addOn[]']?.[count]) { 
+              icon = await customFunction.uploadImageOnAwsReturnUrl(req.files['addOn[]'][count]);
+              count++; 
+            }
+    
+            updatedaddOn.push({
+              name: addOnItem?.name || "", 
+              icon: icon,
+            });
+          }
+    
+          updateData.addOn = updatedaddOn;
+        }
+      } catch (error) {
+        console.error("Error parsing tour_list:", error);
+      }
+    } 
+    
+    // console.log("--- updateData.addOn---",updateData.addOn);
     if (priceStartFrom && priceStartFrom !== null && priceStartFrom !== undefined){
       updateData.priceStartFrom = priceStartFrom;
     }
@@ -688,27 +750,40 @@ newPackages_obj.newpackageUpdate = async(req,res)=>{
       updateData.options_select = options_select;
     }
 
-    // if(tour_title && tour_title != null && tour_title != undefined){
-    //   updateData.tour_title = tour_title;
-    // }
+    if(tour_title && tour_title != null && tour_title != undefined){
+      updateData.tour_title = tour_title;
+    }
 
-    // if (tour_list && tour_list !== null && tour_list !== undefined) {
-    //   tour_list = JSON.parse(tour_list);
-    //   if (Array.isArray(tour_list) && tour_list.length > 0) {
-    //     const updatedTourList = [];
-    //     for (const [index, tourItem] of tour_list.entries()) {
-    //       const icon = tourItem.icon || ( req.files['tour_list[]']?.[index]
-    //         ? await customFunction.uploadImageOnAwsReturnUrl(req.files['tour_list[]'][index])
-    //         : null);
-    //       updatedTourList.push({
-    //         name: tourItem?.name || "", 
-    //         icon: icon,
-    //       });
-    //     }
-    //     updateData.tour_list = updatedTourList;
-    //   }
-    // }
-    // console.log("---tour_list--- ",updateData.tour_list);
+    if (tour_list && tour_list !== null && tour_list !== undefined) {
+      try {
+        tour_list = JSON.parse(tour_list);
+    
+        if (Array.isArray(tour_list) && tour_list.length > 0) {
+          const updatedTourList = [];
+          let count = 0; 
+          for (const [index, tourItem] of tour_list.entries()) {
+            let icon = null;
+            // console.log("--- req.files ---", req.files?.['tour_list[]']);
+            if (tourItem.icon && typeof tourItem.icon === "string" && tourItem.icon.startsWith("http")) {
+              icon = tourItem.icon;
+            } else if (req.files?.['tour_list[]']?.[count]) { 
+              icon = await customFunction.uploadImageOnAwsReturnUrl(req.files['tour_list[]'][count]);
+              count++; 
+            }
+    
+            updatedTourList.push({
+              name: tourItem?.name || "", 
+              icon: icon,
+            });
+          }
+    
+          updateData.tour = updatedTourList;
+        }
+      } catch (error) {
+        console.error("Error parsing tour_list:", error);
+      }
+    }    
+    // console.log("---updateData tour_list--- ",updateData.tour_list);
 
     let  cruiseImageBase64 = null;
     if(cruise_image){

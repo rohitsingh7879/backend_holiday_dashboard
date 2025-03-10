@@ -52,6 +52,9 @@ middleware.uploadImageUpdate = (req, res, next) => {
     { name: "sales_banner_image", maxCount: 1 },
     { name: "cruise_banner_image", maxCount: 1 },
     { name: "mobile_cruise_banner_image", maxCount: 1 },
+    { name: "tour_list[]"},
+    { name: "whats_included[]"},
+    {name : "addOn[]"} 
   ]);
   upload(req, res, (err) => {
     if (err) {
