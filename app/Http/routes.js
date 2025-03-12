@@ -6,6 +6,7 @@ const newPackageController = require("../Http/Controller/newPackages/newPackages
 const middleware = require("../Http/Middleware")
 const enquiryController = require("../Http/Controller/enquiry/enquiry")
 const newBannerController = require("../Http/Controller/newBanner/newBanner")
+const categoryController = require("../Http/Controller/category/category")
 
 
 // add New Packages cruises
@@ -28,7 +29,9 @@ router.post('/newBanner/',middleware.uploadBannerImage,newBannerController.newBa
 router.get('/newBanner/',newBannerController.newBannerGet)
 router.patch('/newBanner/:id',middleware.uploadBannerImage, newBannerController.newBannerUpdate)
 router.delete('/newBanner/:id',newBannerController.newBannerDelete);
-
-
-
+// add category
+router.post('/newCategory/',middleware.uploadCategoryImage,categoryController.categorySave)
+router.get('/newCategory/',categoryController.categoryGet)
+router.patch('/newCategory/:id',middleware.uploadCategoryImage, categoryController.categoryUpdate)
+router.delete('/newCategory/:id',categoryController.categoryDelete);
 module.exports = router;
