@@ -8,7 +8,7 @@ const enquiryController = require("../Http/Controller/enquiry/enquiry")
 const newBannerController = require("../Http/Controller/newBanner/newBanner")
 
 
-// add New Packages
+// add New Packages cruises
 router.post('/newpackage/',middleware.uploadImage,newPackageController.newpackageSave)
 router.get('/newpackage/',newPackageController.newpackageGet)
 router.patch('/newpackage/:id',middleware.uploadImageUpdate ,newPackageController.newpackageUpdate)
