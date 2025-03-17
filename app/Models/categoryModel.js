@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const  categorySchema = new mongoose.Schema({
+const  categorySchema = new mongoose.Schema({ 
     categoryName: { 
         type: String,
         default: null
@@ -8,6 +8,10 @@ const  categorySchema = new mongoose.Schema({
     categoryImage: {
         type: String,
         default: null
+    },
+    categoryType:{
+        type: String,
+        default:null
     }
 })
 

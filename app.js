@@ -17,7 +17,7 @@ mongoose.connect(database.mongodb.uri,{
 }).then(()=>{
     console.log("Mongodb is connected...")
 }).catch((err)=>{
-    console.log("Mongodb is not connected...")
+    console.log("Mongodb is not connected...",err)
 })
 
 
