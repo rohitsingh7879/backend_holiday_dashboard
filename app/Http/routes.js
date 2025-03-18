@@ -40,7 +40,7 @@ router.delete('/newCategory/:id',categoryController.categoryDelete);
 router.post('/add-newfaq/',middleware.uploadFAQImage,FAQController.FAQSave)
 router.get('/faq/get-faq/',FAQController.FAQGet)
 router.put('/faq/update-status/:id',FAQController.updateStatus)
-router.put('/faq/update/:id',FAQController.updateFAQ)
+router.put('/faq/update/:id',middleware.uploadFAQImage,FAQController.updateFAQ)
 router.get('/faq/get-faq/:id',FAQController.FAQGetSingle)
 
 module.exports = router;

@@ -18,7 +18,6 @@ FAQ.FAQSave = async (req, res) => {
 
     let FAQImageBase64 = null;
 
-    // Handle image upload logic, check for file first
     if (FAQ_image) {
       FAQImageBase64 = FAQ_image;
     } else if (req.files && req.files["FAQ_image"]?.[0]) {
@@ -27,7 +26,6 @@ FAQ.FAQSave = async (req, res) => {
       );
     }
 
-    // If FAQ_head_desc is a string, parse it
     if (typeof FAQ_head_desc === "string") {
       console.log("FAQ_head_desc before parsing:",typeof FAQ_head_desc); 
       try {
@@ -183,10 +181,12 @@ FAQ.updateFAQ = async (req, res) => {
   
       if (FAQ_head_desc) faq.FAQ_head_desc = FAQ_head_desc;
   
-      let FAQImageBase64 = faq.FAQ_image; 
+      let FAQImageBase64 = null; 
       if (req.files && req.files["FAQ_image"]) {
         const uploadedImageUrl = await customFunction.uploadImageOnAwsReturnUrl(req.files["FAQ_image"][0]);
         FAQImageBase64 = uploadedImageUrl; 
+      }else{
+        FAQImageBase64 = faq.FAQ_image;
       }
   
       faq.FAQ_image = FAQImageBase64; 
