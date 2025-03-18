@@ -7,7 +7,7 @@ const middleware = require("../Http/Middleware")
 const enquiryController = require("../Http/Controller/enquiry/enquiry")
 const newBannerController = require("../Http/Controller/newBanner/newBanner")
 const categoryController = require("../Http/Controller/category/category")
-
+const FAQController = require('../Http/Controller/faq/faq')
 
 // add New Packages cruises
 router.post('/newpackage/',middleware.uploadImage,newPackageController.newpackageSave)
@@ -34,4 +34,12 @@ router.post('/newCategory/',middleware.uploadCategoryImage,categoryController.ca
 router.get('/newCategory/',categoryController.categoryGet)
 router.patch('/newCategory/:id',middleware.uploadCategoryImage, categoryController.categoryUpdate)
 router.delete('/newCategory/:id',categoryController.categoryDelete);
+
+
+//FAQ
+router.post('/add-newfaq/',middleware.uploadFAQImage,FAQController.FAQSave)
+router.get('/get-faq/',FAQController.FAQGet)
+router.put('/faq/update-status/:id',FAQController.updateStatus)
+router.put('/faq/update/:id',FAQController.updateFAQ)
+
 module.exports = router;

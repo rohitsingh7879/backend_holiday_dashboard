@@ -13,7 +13,6 @@ category_obj.categorySave = async (req, res) => {
         req.files["categoryImage"]?.[0]
       );
     }
-    console.log(categoryObj)
     
     const categoryObj = new categorySchema({
       categoryName: categoryName,
