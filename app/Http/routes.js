@@ -8,6 +8,7 @@ const enquiryController = require("../Http/Controller/enquiry/enquiry")
 const newBannerController = require("../Http/Controller/newBanner/newBanner")
 const categoryController = require("../Http/Controller/category/category")
 const FAQController = require('../Http/Controller/faq/faq')
+const subscriberController = require('../Http/Controller/subscribe/subscribe')
 
 // add New Packages cruises
 router.post('/newpackage/',middleware.uploadImage,newPackageController.newpackageSave)
@@ -42,5 +43,11 @@ router.get('/faq/get-faq/',FAQController.FAQGet)
 router.put('/faq/update-status/:id',FAQController.updateStatus)
 router.put('/faq/update/:id',middleware.uploadFAQImage,FAQController.updateFAQ)
 router.get('/faq/get-faq/:id',FAQController.FAQGetSingle)
+
+// Subscriber
+router.post('/subscriber/add-new',subscriberController.subscribeSave)
+router.post('/subscriber/add-new-with-email',subscriberController.subscribeWithEmailSave)
+router.get('/subscriber/get-all',subscriberController.subscribeGet)
+router.get('/subscriber/get-all-email',subscriberController.subscribeWithEmailGet)
 
 module.exports = router;

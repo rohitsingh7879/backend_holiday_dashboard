@@ -148,7 +148,7 @@ FAQ.updateFAQ = async (req, res) => {
         description,
         FAQ_head_desc,
       } = req.body; 
-   
+   console.log(req.body)
       let faq = await FAQSchema.findById(id);
   
       if (!faq) {
@@ -182,7 +182,7 @@ FAQ.updateFAQ = async (req, res) => {
       if (FAQ_head_desc) faq.FAQ_head_desc = FAQ_head_desc;
   
       let FAQImageBase64 = null; 
-      if (req.files && req.files["FAQ_image"]?.[0]) {
+      if (req.files["FAQ_image"]?.[0]) {
         const uploadedImageUrl = await customFunction.uploadImageOnAwsReturnUrl(req.files["FAQ_image"]?.[0]);
         FAQImageBase64 = uploadedImageUrl; 
       }else{
