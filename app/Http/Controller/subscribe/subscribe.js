@@ -16,14 +16,14 @@ subscribe_obj.subscribeSave = async (req, res) => {
       subscriberEmail: subscriberEmail,
     });
 
-    if (existingSubscriber.length || existingSubscriberWithEmail.length) {
-        return res.status(400).json({
-          message: "This email is already subscribed.",
-          success: false,
-          data: "",
-          status: 400,
-        });
-      }
+    if (existingSubscriber || existingSubscriberWithEmail) {
+      return res.status(400).json({
+        message: "This email is already subscribed.",
+        success: false,
+        data: "",
+        status: 400,
+      });
+    }
 
     const subscribeObj = new subscriberSchema({
       subscriberFirstName: subscriberFirstName,
@@ -59,18 +59,19 @@ subscribe_obj.subscribeSave = async (req, res) => {
   }
 };
 
+
 subscribe_obj.subscribeWithEmailSave = async (req, res) => {
   try {
     const { subscriberEmail } = req.body;
 
-    const existingSubscriber = await subscriberSchema.find({
+    const existingSubscriber = await subscriberSchema.findOne({
       subscriberEmail: subscriberEmail,
     });
-    const existingSubscriberWithEmail = await subscribeWithMail.find({
+    const existingSubscriberWithEmail = await subscribeWithMail.findOne({
       subscriberEmail: subscriberEmail,
     });
 
-    if (existingSubscriber.length || existingSubscriberWithEmail.length) {
+    if (existingSubscriber || existingSubscriberWithEmail) {
       return res.status(400).json({
         message: "This email is already subscribed.",
         success: false,
