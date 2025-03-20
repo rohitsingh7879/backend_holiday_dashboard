@@ -1,6 +1,6 @@
-const multer = require("multer");
-
+const multer = require('multer');
 const middleware = {};
+
 
 middleware.uploadImage = (req, res, next) => {
   const storage = multer.diskStorage({
@@ -10,39 +10,11 @@ middleware.uploadImage = (req, res, next) => {
     filename: function (req, file, cb) {
       cb(
         null,
-        Math.floor(Math.random() * 100000) + "_" + Date.now() + "_" + file.originalname
-      );
-    },
-  });
-
-  const upload = multer({ storage: storage }).fields([
-      { name: "cruise_image", maxCount: 1 },
-      { name: "sales_banner_image", maxCount: 1 },
-      { name: "cruise_banner_image", maxCount: 1 },
-      { name: "mobile_cruise_banner_image", maxCount: 1 },
-      { name: "tour_list[]"},
-      { name: "whats_included[]"},
-      {name : "addOn[]"} 
-  ]);
-
-  upload(req, res, (err) => {
-    if (err) {
-      return res.status(400).json({ message: "Error in File Upload", data: "", success: false, status: 400 });
-    }
-    next();
-  });
-};
-
-
-middleware.uploadImageUpdate = (req, res, next) => {
-  const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-      cb(null, "uploads/");
-    },
-    filename: function (req, file, cb) {
-      cb(
-        null,
-        Math.floor(Math.random() * 100000) + "_" + Date.now() + "_" + file.originalname
+        Math.floor(Math.random() * 100000) +
+          "_" +
+          Date.now() +
+          "_" +
+          file.originalname
       );
     },
   });
@@ -52,19 +24,27 @@ middleware.uploadImageUpdate = (req, res, next) => {
     { name: "sales_banner_image", maxCount: 1 },
     { name: "cruise_banner_image", maxCount: 1 },
     { name: "mobile_cruise_banner_image", maxCount: 1 },
-    { name: "tour_list[]"},
-    { name: "whats_included[]"},
-    {name : "addOn[]"} 
+    { name: "tour_list[]" },
+    { name: "whats_included[]" },
+    { name: "addOn[]" },
   ]);
+
   upload(req, res, (err) => {
     if (err) {
-      return res.status(400).json({ message: "Error in File Upload", data: "", success: false, status: 400 });
+      return res
+        .status(400)
+        .json({
+          message: "Error in File Upload",
+          data: "",
+          success: false,
+          status: 400,
+        });
     }
     next();
   });
 };
 
-middleware.uploadBannerImage = (req,res,next)=>{
+middleware.uploadImageUpdate = (req, res, next) => {
   const storage = multer.diskStorage({
     destination: function (req, file, cb) {
       cb(null, "uploads/");
@@ -72,7 +52,52 @@ middleware.uploadBannerImage = (req,res,next)=>{
     filename: function (req, file, cb) {
       cb(
         null,
-        Math.floor(Math.random() * 100000) + "_" + Date.now() + "_" + file.originalname
+        Math.floor(Math.random() * 100000) +
+          "_" +
+          Date.now() +
+          "_" +
+          file.originalname
+      );
+    },
+  });
+
+  const upload = multer({ storage: storage }).fields([
+    { name: "cruise_image", maxCount: 1 },
+    { name: "sales_banner_image", maxCount: 1 },
+    { name: "cruise_banner_image", maxCount: 1 },
+    { name: "mobile_cruise_banner_image", maxCount: 1 },
+    { name: "tour_list[]" },
+    { name: "whats_included[]" },
+    { name: "addOn[]" },
+  ]);
+  upload(req, res, (err) => {
+    if (err) {
+      return res
+        .status(400)
+        .json({
+          message: "Error in File Upload",
+          data: "",
+          success: false,
+          status: 400,
+        });
+    }
+    next();
+  });
+};
+
+middleware.uploadBannerImage = (req, res, next) => {
+  const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, "uploads/");
+    },
+    filename: function (req, file, cb) {
+      cb(
+        null,
+        Math.floor(Math.random() * 100000) +
+          "_" +
+          Date.now() +
+          "_" +
+          file.originalname
       );
     },
   });
@@ -82,13 +107,20 @@ middleware.uploadBannerImage = (req,res,next)=>{
   ]);
   upload(req, res, (err) => {
     if (err) {
-      return res.status(400).json({ message: "Error in File Upload", data: "", success: false, status: 400 });
+      return res
+        .status(400)
+        .json({
+          message: "Error in File Upload",
+          data: "",
+          success: false,
+          status: 400,
+        });
     }
     next();
   });
-}
+};
 
-middleware.uploadCategoryImage = (req,res,next)=>{
+middleware.uploadCategoryImage = (req, res, next) => {
   const storage = multer.diskStorage({
     destination: function (req, file, cb) {
       cb(null, "uploads/");
@@ -96,7 +128,11 @@ middleware.uploadCategoryImage = (req,res,next)=>{
     filename: function (req, file, cb) {
       cb(
         null,
-        Math.floor(Math.random() * 100000) + "_" + Date.now() + "_" + file.originalname
+        Math.floor(Math.random() * 100000) +
+          "_" +
+          Date.now() +
+          "_" +
+          file.originalname
       );
     },
   });
@@ -106,13 +142,20 @@ middleware.uploadCategoryImage = (req,res,next)=>{
   ]);
   upload(req, res, (err) => {
     if (err) {
-      return res.status(400).json({ message: "Error in File Upload", data: "", success: false, status: 400 });
+      return res
+        .status(400)
+        .json({
+          message: "Error in File Upload",
+          data: "",
+          success: false,
+          status: 400,
+        });
     }
     next();
   });
-}
+};
 
-middleware.uploadFAQImage = (req,res,next)=>{
+middleware.uploadFAQImage = (req, res, next) => {
   const storage = multer.diskStorage({
     destination: function (req, file, cb) {
       cb(null, "uploads/");
@@ -120,7 +163,11 @@ middleware.uploadFAQImage = (req,res,next)=>{
     filename: function (req, file, cb) {
       cb(
         null,
-        Math.floor(Math.random() * 100000) + "_" + Date.now() + "_" + file.originalname
+        Math.floor(Math.random() * 100000) +
+          "_" +
+          Date.now() +
+          "_" +
+          file.originalname
       );
     },
   });
@@ -130,10 +177,52 @@ middleware.uploadFAQImage = (req,res,next)=>{
   ]);
   upload(req, res, (err) => {
     if (err) {
-      return res.status(400).json({ message: "Error in File Upload", data: "", success: false, status: 400 });
+      return res
+        .status(400)
+        .json({
+          message: "Error in File Upload",
+          data: "",
+          success: false,
+          status: 400,
+        });
     }
     next();
   });
-}
+};
+middleware.uploadMultipleFiles = (req, res, next) => {
+  const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, "uploads/");
+    },
+    filename: function (req, file, cb) {
+      cb(
+        null,
+        Math.floor(Math.random() * 100000) +
+          "_" +
+          Date.now() +
+          "_" +
+          file.originalname
+      );
+    },
+  });
+
+  const upload = multer({ storage: storage }).fields([
+    { name: "Images", maxCount: 10 },
+  ]);
+  upload(req, res, (err) => {
+    if (err) {
+      return res
+        .status(400)
+        .json({
+          message: "Error in File Upload",
+          data: "",
+          error:err?.message,
+          success: false,
+          status: 400,
+        });
+    }
+    next();
+  });
+};
 
 module.exports = middleware;

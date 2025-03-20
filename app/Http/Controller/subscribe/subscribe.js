@@ -59,7 +59,6 @@ subscribe_obj.subscribeSave = async (req, res) => {
   }
 };
 
-
 subscribe_obj.subscribeWithEmailSave = async (req, res) => {
   try {
     const { subscriberEmail } = req.body;
@@ -114,23 +113,41 @@ subscribe_obj.subscribeWithEmailSave = async (req, res) => {
 
 subscribe_obj.subscribeWithEmailGet = async (req, res) => {
   try {
-    const subscribeResult = await subscribeWithMail.find();
-    if (subscribeResult) {
-      return res.status(200).json({
-        message: "Successfully fetch subscriber Data",
-        success: true,
-        data: subscribeResult,
-      });
-    } else {
-      res.status(400).json({
-        message: "Error in database",
-        data: "",
+    const { page = 1, limit = 10 } = req.query;
+    const pageNumber = parseInt(page, 10);
+    const limitNumber = parseInt(limit, 10);
+
+    if (pageNumber <= 0 || limitNumber <= 0) {
+      return res.status(400).json({
+        message: "Page and limit must be positive integers.",
         success: false,
-        status: 400,
+        data: "",
       });
     }
+
+    const skip = (pageNumber - 1) * limitNumber;
+
+    const totalSubscribers = await subscribeWithMail.countDocuments();
+
+    const subscribeResult = await subscribeWithMail
+      .find()
+      .skip(skip)
+      .limit(limitNumber);
+
+    return res.status(200).json({
+      message: "Successfully fetched subscriber data.",
+      success: true,
+      data: subscribeResult,
+      pagination: {
+        page: pageNumber,
+        limit: limitNumber,
+        total: totalSubscribers,
+        totalPages: Math.ceil(totalSubscribers / limitNumber),
+      },
+    });
   } catch (error) {
-    res.status(500).json({
+    console.error("--- error --", error);
+    return res.status(500).json({
       message: "Internal Server Error",
       data: "",
       success: false,
@@ -141,23 +158,41 @@ subscribe_obj.subscribeWithEmailGet = async (req, res) => {
 
 subscribe_obj.subscribeGet = async (req, res) => {
   try {
-    const subscribeResult = await subscriberSchema.find();
-    if (subscribeResult) {
-      return res.status(200).json({
-        message: "Successfully fetch subscriber Data",
-        success: true,
-        data: subscribeResult,
-      });
-    } else {
-      res.status(400).json({
-        message: "Error in database",
-        data: "",
+    const { page = 1, limit = 10 } = req.query;
+    const pageNumber = parseInt(page, 10);
+    const limitNumber = parseInt(limit, 10);
+
+    if (pageNumber <= 0 || limitNumber <= 0) {
+      return res.status(400).json({
+        message: "Page and limit must be positive integers.",
         success: false,
-        status: 400,
+        data: "",
       });
     }
+
+    const skip = (pageNumber - 1) * limitNumber;
+
+    const totalSubscribers = await subscriberSchema.countDocuments();
+
+    const subscribeResult = await subscriberSchema
+      .find()
+      .skip(skip)
+      .limit(limitNumber);
+
+    return res.status(200).json({
+      message: "Successfully fetched subscriber data.",
+      success: true,
+      data: subscribeResult,
+      pagination: {
+        page: pageNumber,
+        limit: limitNumber,
+        total: totalSubscribers,
+        totalPages: Math.ceil(totalSubscribers / limitNumber),
+      },
+    });
   } catch (error) {
-    res.status(500).json({
+    console.error("--- error --", error);
+    return res.status(500).json({
       message: "Internal Server Error",
       data: "",
       success: false,
