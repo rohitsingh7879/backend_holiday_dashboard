@@ -4,24 +4,40 @@ const fileSchema = new mongoose.Schema({
   type: {
     type: String,
     required: true,
-    enum: ["AboutUs", "Gallery"],
+    enum: ["AboutUs", "Gallery", "Other"],
   },
-  filename: {
+  title: {
     type: String,
-    required: true,
+    required: function () {
+      return this.type === "AboutUs";
+    },
   },
-  url: {
+  description: {
     type: String,
-    required: true,
+    required: function () {
+      return this.type === "AboutUs";
+    },
   },
-  s3Key: {
-    type: String,
-    required: true,
-  },
-  uploadDate: {
-    type: Date,
-    default: Date.now,
-  },
+  files: [
+    {
+      filename: {
+        type: String,
+        required: true,
+      },
+      url: {
+        type: String,
+        required: true,
+      },
+      s3Key: {
+        type: String,
+        required: true,
+      },
+      uploadDate: {
+        type: Date,
+        default: Date.now,
+      },
+    },
+  ],
 });
 
 const File = mongoose.model("File", fileSchema);

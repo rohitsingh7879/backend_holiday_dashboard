@@ -4,7 +4,7 @@ const staticContentSchema = new mongoose.Schema({
   type: {
     type: String,
     required: true,
-    enum: ['AboutUs'], 
+    enum: ['AboutUs','ContactUs'], 
   },
   content: {
     type: String,
