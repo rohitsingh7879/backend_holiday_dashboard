@@ -10,9 +10,12 @@ const categoryController = require("../Http/Controller/category/category");
 const FAQController = require("../Http/Controller/faq/faq");
 const subscriberController = require("../Http/Controller/subscribe/subscribe");
 const staticContentController = require("../Http/Controller/staticContent/staticContent");
-const { fileUpload,getFilesAndContent } = require("../Http/Controller/fileUpload/fileUpload");
-const multer = require('multer');
-const upload = multer({ dest: 'uploads/' });
+const {
+  fileUpload,
+  getFilesAndContent,
+} = require("../Http/Controller/fileUpload/fileUpload");
+const multer = require("multer");
+const upload = multer({ dest: "uploads/" });
 // add New Packages cruises
 router.post(
   "/newpackage/",
