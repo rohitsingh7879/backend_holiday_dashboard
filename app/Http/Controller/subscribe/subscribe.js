@@ -61,7 +61,7 @@ subscribe_obj.subscribeSave = async (req, res) => {
 
 subscribe_obj.subscribeWithEmailSave = async (req, res) => {
   try {
-    const { subscriberEmail } = req.body;
+    const { subscriberEmail, type } = req.body;
 
     const existingSubscriber = await subscriberSchema.findOne({
       subscriberEmail: subscriberEmail,
@@ -80,6 +80,7 @@ subscribe_obj.subscribeWithEmailSave = async (req, res) => {
     }
 
     const subscribeObj = new subscribeWithMail({
+      type: type,
       subscriberEmail: subscriberEmail,
     });
 
