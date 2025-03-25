@@ -392,30 +392,68 @@ newPackages_obj.newpackageSave =   async (req, res) => {
   }
 }
 
-newPackages_obj.newpackageGet = async(req,res)=>{
+newPackages_obj.newpackageGet = async (req, res) => {
   try {
-      const { id } = req.query;
-      if(id){
-        const getData = await formSchemaModel.find({ _id: id });
-        // console.log(getData);
-        if (getData && getData.length > 0) {
-            return res.status(200).json({ message: "Data fetched successfully", success: true, data: getData , status :200 });
-        } else {
-            return res.status(400).json({ message: "Data not found", data: '', success: false , status:400 });
-        }
-      }else{
-        let getData = await formSchemaModel.find();
-        if(getData){
-            res.status(200).json({ message: "fetch data Successfully", success : true, data: getData , status:200 });
-        }else{
-            res.status(400).json({ message: "Data not Found", data: '' , success : false, status : 400});
-        }
-      }   
+    const { id, page = 1, limit = 10 } = req.query;  
+    const skip = (page - 1) * limit; 
+
+    if (id) {
+      const getData = await formSchemaModel.find({ _id: id });
+
+      if (getData && getData.length > 0) {
+        return res.status(200).json({
+          message: "Data fetched successfully",
+          success: true,
+          data: getData,
+          status: 200,
+        });
+      } else {
+        return res.status(400).json({
+          message: "Data not found",
+          data: "",
+          success: false,
+          status: 400,
+        });
+      }
+    } else {
+      const getData = await formSchemaModel.find()
+        .skip(skip)  
+        .limit(parseInt(limit)) 
+        .exec();
+
+      const totalRecords = await formSchemaModel.countDocuments();  
+
+      const totalPages = Math.ceil(totalRecords / limit); 
+
+      if (getData) {
+        return res.status(200).json({
+          message: "Data fetched successfully",
+          success: true,
+          data: getData,
+          totalRecords,
+          totalPages,
+          currentPage: parseInt(page),
+          status: 200,
+        });
+      } else {
+        return res.status(400).json({
+          message: "Data not found",
+          data: "",
+          success: false,
+          status: 400,
+        });
+      }
+    }
   } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: "Internal Server Error", data: "" , success : false , status : 500});
+    console.error(error);
+    res.status(500).json({
+      message: "Internal Server Error",
+      data: "",
+      success: false,
+      status: 500,
+    });
   }
-}
+};
 
 
 newPackages_obj.newpackageUpdate = async(req,res)=>{
