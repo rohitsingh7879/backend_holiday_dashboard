@@ -1,4 +1,5 @@
 const express = require("express");
+const { validationResult } = require("express-validator");
 const router = express.Router();
 const contactController = require("../Http/Controller/contactUs/contactUs");
 const operatorControlller = require("../Http/Controller/operator/operator");
@@ -15,6 +16,7 @@ const {
   getFilesAndContent,
 } = require("../Http/Controller/fileUpload/fileUpload");
 const multer = require("multer");
+const { register, login, updatePassword } = require("./Controller/admin/adminController");
 const upload = multer({ dest: "uploads/" });
 // add New Packages cruises
 router.post(
@@ -112,5 +114,20 @@ router.get(
 //file upload
 router.post("/files/upload-images", middleware.uploadMultipleFiles, fileUpload);
 router.get("/files/get-images-data", getFilesAndContent);
+
+//Admin
+
+router.post("/admin/add-new", middleware.validateRegisterInput, (req, res) => {
+  const errors = validationResult(req);
+
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
+  register(req, res);
+});
+
+router.post("/admin/login", middleware.validateRegisterInput, login);
+router.put("/admin/update-password", middleware.validateRegisterInput, updatePassword);
 
 module.exports = router;
