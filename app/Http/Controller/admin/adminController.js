@@ -73,25 +73,33 @@ const login = async (req, res) => {
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
-    // Generate the JWT token
     const token = jwt.sign(
       { id: admin._id, userName: admin.userName },
-      process.env.JWT_SECRET, // Secret should be stored in environment variables
-      { expiresIn: "1h" } // Optional expiry time for the token
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" }
     );
 
     // Store the token in an HTTP-only cookie
     res.cookie("token", token, {
-      httpOnly: true, // Cookie is not accessible via JavaScript
-      // secure: process.env.NODE_ENV === "production", // Set to true if using HTTPS
-      sameSite: "Strict", // Optional, helps prevent CSRF attacks
-      maxAge: 3600000, // Cookie expires in 1 hour (in milliseconds)
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production", // Ensure this is true in production with HTTPS
+      sameSite: "Strict", // Helps prevent CSRF attacks
+      maxAge: 3600000, // 1 hour expiration
     });
+
+    // res.cookie("token", token, {
+    //   httpOnly: true, // Cookie is not accessible via JavaScript
+    //   // secure: process.env.NODE_ENV === "production", // Set to true if using HTTPS
+    //   sameSite: "Strict", // Optional, helps prevent CSRF attacks
+    //   maxAge: 3600000, // Cookie expires in 1 hour (in milliseconds)
+    // });
 
     return res.status(200).json({
       message: "Login successful",
+      status: 200,
       success: true,
       data: {
+        token: token,
         admin: {
           userName: admin.userName,
           _id: admin._id,
@@ -149,6 +157,5 @@ const updatePassword = async (req, res) => {
     });
   }
 };
-
 
 module.exports = { login, register, updatePassword };
