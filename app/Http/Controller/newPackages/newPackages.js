@@ -1117,7 +1117,10 @@ newPackages_obj.newpackageSearchFilter = async (req, res) => {
       duration,
       price_range,
       recommended,
+      page = 1,
+      limit = 10,
     } = req.query;
+    const skip = (page - 1) * limit;
     // Constructing a dynamic filter object
     let filter = {};
 
@@ -1135,16 +1138,41 @@ newPackages_obj.newpackageSearchFilter = async (req, res) => {
     if (ports) {
       filter.itinerary = { $elemMatch: { port: ports } };
     }
+
+    // Handle the `duration` condition
     if (duration) {
-      let durationValue = Number(duration); // Convert to number
+      let durationValue = Number(duration); 
       if (!isNaN(durationValue) && durationValue >= 0 && durationValue <= 50) {
-        filter.cruise_nights = { $gte: durationValue };
+       
+        filter.$expr = filter.$expr || {};
+    
+        filter.$expr.cruise_nights_lte = { 
+          $lte: [{ $toDouble: "$cruise_nights" }, durationValue]
+        };
       }
     }
-
+    
+    // Handle the `price_range` condition
     if (price_range) {
-      filter.package_cruise_value1 = price_range;
+      let price_rangeValue = Number(price_range); 
+      if (!isNaN(price_rangeValue) && price_rangeValue >= 0 && price_rangeValue <= 50) {
+
+        filter.$expr = filter.$expr || {};
+    
+        filter.$expr.priceStartFrom_lte = {
+          $lte: [{ $toDouble: "$priceStartFrom" }, price_rangeValue]
+        };
+      }
     }
+    
+    // Now `filter` will have both conditions merged if both `duration` and `price_range` are present
+    // console.log(filter);
+    
+
+    // if (price_range) {
+    //   filter.package_cruise_value1 = price_range;
+    //   filter.priceStartFrom = { $lte: price_range };
+    // }
     if (departure_month) {
       departure_month = moment(departure_month, "DD MMMM YYYY").unix();
       filter.itinerary = {
@@ -1191,6 +1219,8 @@ newPackages_obj.newpackageSearchFilter = async (req, res) => {
     // }else{
     //   searchFilterData = await formSchemaModel.find(filter);
     // }
+    // console.log("filtr", filter);
+
     if (recommended && Object.keys(SortQuery).length > 0) {
       searchFilterData = await formSchemaModel.aggregate([
         { $match: filter },
@@ -1219,7 +1249,11 @@ newPackages_obj.newpackageSearchFilter = async (req, res) => {
         },
       ]);
     } else {
-      searchFilterData = await formSchemaModel.find(filter);
+      searchFilterData = await formSchemaModel
+        .find(filter)
+        .skip(skip)
+        .limit(parseInt(limit))
+        .exec();
     }
     // console.log("---searchFilterData--- ",searchFilterData);
 
@@ -1298,3 +1332,4 @@ newPackages_obj.newpackagePickCruiseCollection = async (req, res) => {
 };
 
 module.exports = newPackages_obj;
+ 
