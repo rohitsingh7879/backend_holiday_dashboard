@@ -8,15 +8,23 @@ const middleware = require("../Http/Middleware");
 const enquiryController = require("../Http/Controller/enquiry/enquiry");
 const newBannerController = require("../Http/Controller/newBanner/newBanner");
 const categoryController = require("../Http/Controller/category/category");
+
 const FAQController = require("../Http/Controller/faq/faq");
+const NewFAQController = require("../Http/Controller/faq/newFAQ");
+
 const subscriberController = require("../Http/Controller/subscribe/subscribe");
 const staticContentController = require("../Http/Controller/staticContent/staticContent");
 const {
   fileUpload,
   getFilesAndContent,
 } = require("../Http/Controller/fileUpload/fileUpload");
+
 const multer = require("multer");
-const { register, login, updatePassword } = require("./Controller/admin/adminController");
+const {
+  register,
+  login,
+  updatePassword,
+} = require("./Controller/admin/adminController");
 const upload = multer({ dest: "uploads/" });
 // add New Packages cruises
 router.post(
@@ -78,12 +86,20 @@ router.delete("/newCategory/:id", categoryController.categoryDelete);
 router.post("/add-newfaq/", middleware.uploadFAQImage, FAQController.FAQSave);
 router.get("/faq/get-faq/", FAQController.FAQGet);
 router.put("/faq/update-status/:id", FAQController.updateStatus);
+router.get("/faq/get-faq/:id", FAQController.FAQGetSingle);
 router.put(
   "/faq/update/:id",
   middleware.uploadFAQImage,
   FAQController.updateFAQ
 );
-router.get("/faq/get-faq/:id", FAQController.FAQGetSingle);
+
+//NewFAQ
+router.get("/new-faq/get-faq/:id", NewFAQController.FAQGetSingle);
+router.get("/new-faq/get-faq", NewFAQController.FAQGet);
+router.post("/new-faq/add-faq/", NewFAQController.FAQSave);
+router.put("/new-faq/update-status/:id", NewFAQController.updateStatus);
+router.put("/new-faq/update-faq/:id", NewFAQController.updateFAQ);
+router.delete("/new-faq/delete-faq/:id", NewFAQController.FAQDelete);
 
 // Subscriber
 router.post("/subscriber/add-new", subscriberController.subscribeSave);
@@ -128,6 +144,10 @@ router.post("/admin/add-new", middleware.validateRegisterInput, (req, res) => {
 });
 
 router.post("/admin/login", middleware.validateRegisterInput, login);
-router.put("/admin/update-password", middleware.validateRegisterInput, updatePassword);
+router.put(
+  "/admin/update-password",
+  middleware.validateRegisterInput,
+  updatePassword
+);
 
 module.exports = router;

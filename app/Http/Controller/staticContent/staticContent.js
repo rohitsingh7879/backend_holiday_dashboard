@@ -3,9 +3,14 @@ const staticContent_obj = {};
 
 staticContent_obj.staticContentSave = async (req, res) => {
   try {
-    const { content, type } = req.body;
+    const { content, type, heading, description } = req.body;
+
     const isContentResult = await staticContentModel.findOne({ type: type });
-    if (isContentResult) {
+    if (
+      isContentResult &&
+      type !== "CareerOportunity" &&
+      type !== "PrivacyAndPolicy"
+    ) {
       return res.status(400).json({
         message: "Already added you can update",
         success: true,
@@ -14,8 +19,23 @@ staticContent_obj.staticContentSave = async (req, res) => {
     }
 
     const newStaticContent = new staticContentModel({
-      content: content,
+
+      content:
+        type === "CareerOportunity" || type === "PrivacyAndPolicy"
+          ? undefined
+          : content,
+
       type: type,
+
+      heading:
+        type === "CareerOportunity" || type === "PrivacyAndPolicy"
+          ? heading
+          : undefined,
+
+      description:
+        type === "CareerOportunity" || type === "PrivacyAndPolicy"
+          ? description
+          : undefined,
     });
 
     const contentResult = await newStaticContent.save();
@@ -49,7 +69,7 @@ staticContent_obj.staticContentSave = async (req, res) => {
 
 staticContent_obj.staticContentUpdate = async (req, res) => {
   try {
-    const { type, content } = req.body;
+    const { type, content, _id, heading, description } = req.body;
     //   if (!type || !['AboutUs', 'ContactUs'].includes(type)) {
     //     return res.status(400).json({
     //       message: "Invalid type parameter. Allowed values are 'AboutUs' or 'ContactUs'.",
@@ -58,7 +78,11 @@ staticContent_obj.staticContentUpdate = async (req, res) => {
     //     });
     //   }
 
-    if (!content) {
+    if (
+      !content &&
+      type !== "CareerOportunity" &&
+      type !== "PrivacyAndPolicy"
+    ) {
       return res.status(400).json({
         message: "Content must be provided for update.",
         success: false,
@@ -66,14 +90,34 @@ staticContent_obj.staticContentUpdate = async (req, res) => {
       });
     }
 
-    const updatedContent = await staticContentModel.findOneAndUpdate(
-      { type: type },
-      { content: content },
-      {
-        new: true, // Return the updated document
-        runValidators: true, // Ensure validation is run on the update
-      }
-    );
+    let updatedContent;
+
+    if (type === "CareerOportunity" || type === "PrivacyAndPolicy") {
+      updatedContent = await staticContentModel.findOneAndUpdate(
+        {
+          _id: _id,
+        },
+        {
+          $set: {
+            heading: heading,
+            description: description,
+          },
+        },
+        {
+          new: true,
+          runValidators: true,
+        }
+      );
+    } else {
+      updatedContent = await staticContentModel.findOneAndUpdate(
+        { type: type },
+        { content: content },
+        {
+          new: true, // Return the updated document
+          runValidators: true, // Ensure validation is run on the update
+        }
+      );
+    }
 
     if (updatedContent) {
       return res.status(200).json({
@@ -104,7 +148,14 @@ staticContent_obj.staticContentUpdate = async (req, res) => {
 staticContent_obj.staticContentGet = async (req, res) => {
   try {
     const { type } = req.query;
-    const contentResult = await staticContentModel.findOne({ type: type });
+
+    let contentResult;
+    if (type === "CareerOportunity" || type==='PrivacyAndPolicy') {
+      contentResult = await staticContentModel.find({ type: type });
+    } else {
+      contentResult = await staticContentModel.findOne({ type: type });
+    }
+
     if (contentResult) {
       return res.status(200).json({
         message: "Successfully fetch content Data",

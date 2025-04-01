@@ -79,7 +79,6 @@ FAQ.FAQSave = async (req, res) => {
   }
 };
 
-module.exports = FAQ;
 
 
 FAQ.FAQGet = async (req, res) => {
