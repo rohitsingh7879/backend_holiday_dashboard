@@ -24,6 +24,8 @@ const {
   register,
   login,
   updatePassword,
+  forgotPassword,
+  resetPassword,
 } = require("./Controller/admin/adminController");
 const upload = multer({ dest: "uploads/" });
 // add New Packages cruises
@@ -132,7 +134,6 @@ router.post("/files/upload-images", middleware.uploadMultipleFiles, fileUpload);
 router.get("/files/get-images-data", getFilesAndContent);
 
 //Admin
-
 router.post("/admin/add-new", middleware.validateRegisterInput, (req, res) => {
   const errors = validationResult(req);
 
@@ -146,8 +147,11 @@ router.post("/admin/add-new", middleware.validateRegisterInput, (req, res) => {
 router.post("/admin/login", middleware.validateRegisterInput, login);
 router.put(
   "/admin/update-password",
-  middleware.validateRegisterInput,
+  middleware.verifyToken,
+  middleware.validateUpdatePassword,
   updatePassword
 );
+router.post("/admin/forget-password", forgotPassword);
+router.put("/admin/reset-password", resetPassword);
 
 module.exports = router;

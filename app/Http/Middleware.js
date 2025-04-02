@@ -228,9 +228,29 @@ middleware.validateRegisterInput = [
     .matches(/^(?=.*[0-9])(?=.*[!@#$%^&*])[A-Za-z0-9!@#$%^&*]{6,}$/)
     .withMessage('Password must contain at least one number and one special character'),
 ];
+middleware.validateUpdatePassword = [
+  body('userName')
+    .isString()
+    .withMessage('User name must be a string')
+    .isLength({ min: 3, max: 20 })
+    .withMessage('User name must be between 3 and 20 characters'),
+
+  body('oldPassword')
+    .isLength({ min: 6 })
+    .withMessage('Password must be at least 6 characters long')
+    .matches(/^(?=.*[0-9])(?=.*[!@#$%^&*])[A-Za-z0-9!@#$%^&*]{6,}$/)
+    .withMessage('Password must contain at least one number and one special character'),
+
+  body('newPassword')
+    .isLength({ min: 6 })
+    .withMessage('Password must be at least 6 characters long')
+    .matches(/^(?=.*[0-9])(?=.*[!@#$%^&*])[A-Za-z0-9!@#$%^&*]{6,}$/)
+    .withMessage('Password must contain at least one number and one special character'),
+];
 
 middleware.verifyToken = (req, res, next) => {
-  const token = req.cookies.token;
+  
+  const token = req.headers.authorization && req.headers.authorization.split(' ')[1];
 
   if (!token) {
     return res.status(401).json({ message: "No token, authorization denied" });

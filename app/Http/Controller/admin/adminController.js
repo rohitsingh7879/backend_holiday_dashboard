@@ -1,5 +1,6 @@
 const Admin = require("../../../Models/adminModel");
 
+const nodemailer = require("nodemailer");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
@@ -76,7 +77,7 @@ const login = async (req, res) => {
     const token = jwt.sign(
       { id: admin._id, userName: admin.userName },
       process.env.JWT_SECRET,
-      { expiresIn: "1d" }
+      { expiresIn: process.env.JWT_EXPIRATION_TIME }
     );
 
     // Store the token in an HTTP-only cookie
@@ -117,9 +118,10 @@ const login = async (req, res) => {
 };
 
 const updatePassword = async (req, res) => {
-  const { userName, oldPassword, newPassword } = req.body;
+  const { oldPassword, newPassword } = req.body;
 
   try {
+    const userName = req.user.userName;
     const admin = await Admin.findOne({ userName });
 
     if (!admin) {
@@ -139,14 +141,7 @@ const updatePassword = async (req, res) => {
 
     return res.status(200).json({
       message: "Password updated successfully",
-
       success: true,
-      data: {
-        admin: {
-          userName: admin.userName,
-          _id: admin._id,
-        },
-      },
     });
   } catch (error) {
     console.error("Error during login:", error);
@@ -158,4 +153,122 @@ const updatePassword = async (req, res) => {
   }
 };
 
-module.exports = { login, register, updatePassword };
+const forgotPassword = async (req, res) => {
+  try {
+    const { userName } = req.body;
+
+    const admin = await Admin.findOne({ userName });
+    if (!admin) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const resetToken = jwt.sign({ ...admin }, process.env.JWT_SECRET_RESET, {
+      expiresIn: process.env.JWT_EXPIRATION_TIME_RESET,
+    });
+
+    const transporter = nodemailer.createTransport({
+      host: "smtp.ethereal.email",
+      port: 587,
+      secure: false,
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
+
+    const resetUrl = `${process.env.FRONTEND_URL}?token=${resetToken}`;
+
+    await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to: admin?.userName,
+      subject: "Password Reset Request",
+      html: `
+      <p>Dear Admin,</p>
+      <p>We received a request to reset your password. Click the link below to reset it:</p>
+      <p><a href="${resetUrl}" target="_blank">Click here to reset your password</a></p>
+      <p>This link will expire in 1 hour.</p>
+      <p>If you didn't request a password reset, you can ignore this email.</p>
+      <p>Best regards,<br>Holiday2.com</p>
+  `,
+    });
+
+    res
+      .status(200)
+      .json({
+        message: "Password reset link sent",
+        success: true,
+        status: 200,
+      });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Internal Server Error",
+      status: 500,
+      error: error.message,
+      success: false,
+    });
+  }
+};
+
+const resetPassword = async (req, res) => {
+  const { token, newPassword } = req.body;
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET_RESET);
+    // console.log('decoded---',decoded);
+    const adminDetails = decoded?._doc;
+    const userId = adminDetails?._id;
+
+    const admin = await Admin.findById({ _id: userId });
+    // console.log('admin---',admin)
+    if (!admin) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (admin?.tokenVersion !== adminDetails?.tokenVersion) {
+      return res.status(401).json({
+        message: "Token has been invalidated due to a password reset",
+        success: false,
+        status:401
+      });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    admin.password = hashedPassword;
+    admin.tokenVersion += 1;
+    await admin.save();
+
+    return res
+      .status(200)
+      .json({ message: "Password successfully updated", success: true,status:200 });
+  } catch (error) {
+    if (error instanceof jwt.TokenExpiredError) {
+      return res.status(401).json({
+        message: "Token has expired. Please request a new one.",
+        success: false,
+        status:401
+      });
+    } else if (error instanceof jwt.JsonWebTokenError) {
+      return res.status(401).json({
+        message: "Invalid token. Please request a new one.",
+        success: false,
+        status:401
+      });
+    }
+
+    console.error(error);
+    return res.status(500).json({
+      message: "Internal server error",
+      success: false,
+      status:500
+    });
+  }
+};
+
+module.exports = {
+  login,
+  register,
+  updatePassword,
+  forgotPassword,
+  resetPassword,
+};
