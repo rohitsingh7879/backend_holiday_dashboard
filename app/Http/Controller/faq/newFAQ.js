@@ -40,12 +40,24 @@ NewFAQ.FAQSave = async (req, res) => {
 
 NewFAQ.FAQGet = async (req, res) => {
   try {
-    const FAQResult = await NewFAQSchema.find();
+    const { page = 1, limit = 10 } = req.query;
+    const pageNumber = parseInt(page, 10);
+    const limitNumber = parseInt(limit, 10);
+    const skip = (pageNumber - 1) * limitNumber;
+    const FAQResult = await NewFAQSchema.find().skip(skip).limit(limitNumber);
+    const totalFAQs = await NewFAQSchema.countDocuments();
+
     if (FAQResult) {
       return res.status(200).json({
         message: "Successfully fetch FAQ Data",
         success: true,
         data: FAQResult,
+        pagination: {
+          page: pageNumber,
+          limit: limitNumber,
+          total: totalFAQs,
+          totalPages: Math.ceil(totalFAQs / limitNumber),
+        },
       });
     } else {
       res.status(400).json({
@@ -59,12 +71,12 @@ NewFAQ.FAQGet = async (req, res) => {
     res.status(500).json({
       message: "Internal Server Error",
       data: "",
+      error:error?.message,
       success: false,
       status: 500,
     });
   }
 };
-
 
 NewFAQ.FAQGetSingle = async (req, res) => {
   try {
@@ -72,12 +84,12 @@ NewFAQ.FAQGetSingle = async (req, res) => {
     const FAQResult = await NewFAQSchema.findOne({ _id: id });
 
     if (!FAQResult) {
-        return res.status(404).json({
-          message: "FAQ not found",
-          success: false,
-          status: 404,
-        });
-      }
+      return res.status(404).json({
+        message: "FAQ not found",
+        success: false,
+        status: 404,
+      });
+    }
     if (FAQResult) {
       return res.status(200).json({
         message: "Successfully fetch FAQ Data",
@@ -108,12 +120,12 @@ NewFAQ.FAQDelete = async (req, res) => {
     const FAQResult = await NewFAQSchema.findByIdAndDelete({ _id: id });
 
     if (!FAQResult) {
-        return res.status(404).json({
-          message: "FAQ not found",
-          success: false,
-          status: 404,
-        });
-      }
+      return res.status(404).json({
+        message: "FAQ not found",
+        success: false,
+        status: 404,
+      });
+    }
     if (FAQResult) {
       return res.status(200).json({
         message: "Successfully deleted FAQ Data",

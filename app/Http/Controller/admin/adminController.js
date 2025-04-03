@@ -197,6 +197,7 @@ const forgotPassword = async (req, res) => {
       .json({
         message: "Password reset link sent",
         success: true,
+        token:resetToken,
         status: 200,
       });
   } catch (error) {

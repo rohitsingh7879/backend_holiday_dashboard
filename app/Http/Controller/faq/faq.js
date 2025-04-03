@@ -83,12 +83,25 @@ FAQ.FAQSave = async (req, res) => {
 
 FAQ.FAQGet = async (req, res) => {
   try {
-    const FAQResult = await FAQSchema.find();
+    const { page = 1, limit = 10 } = req.query;
+    const pageNumber = parseInt(page, 10);
+    const limitNumber = parseInt(limit, 10);
+    const skip = (pageNumber - 1) * limitNumber;
+    const FAQResult = await FAQSchema.find().skip(skip).limit(limitNumber);
+    const totalFAQs = await FAQSchema.countDocuments();
+
+
     if (FAQResult) {
       return res.status(200).json({
         message: "Successfully fetch FAQ Data",
         success: true,
         data: FAQResult,
+        pagination: {
+          page: pageNumber,
+          limit: limitNumber,
+          total: totalFAQs,
+          totalPages: Math.ceil(totalFAQs / limitNumber),
+        },
       });
     } else {
       res.status(400).json({
