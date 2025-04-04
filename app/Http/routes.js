@@ -95,10 +95,17 @@ router.post(
   middleware.uploadSubCategoryImage,
   subCategoryController.subCategorySave
 );
+
 router.get(
   "/sub-category/get-all",
   middleware.verifyToken,
   subCategoryController.subCategoryGet
+);
+
+router.get(
+  "/sub-category/get-all-by-category/:categoryId",
+  // middleware.verifyToken,
+  subCategoryController.subCategoryGetByCatId
 );
 
 router.put(

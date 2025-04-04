@@ -16,6 +16,7 @@ newPackages_obj.newpackageSave = async (req, res) => {
       general_Start,
       general_end,
       general_categories,
+      general_sub_categories,
       general_range,
       summary,
       sales_message,
@@ -314,6 +315,11 @@ newPackages_obj.newpackageSave = async (req, res) => {
     } else {
       general_categories = [];
     }
+    if (general_sub_categories) {
+      general_sub_categories = JSON.parse(general_sub_categories);
+    } else {
+      general_sub_categories = [];
+    }
     const formData = new formSchemaModel({
       name: name,
       reference: reference,
@@ -325,6 +331,7 @@ newPackages_obj.newpackageSave = async (req, res) => {
       general_Start: general_Start,
       general_end: general_end,
       general_categories: general_categories,
+      general_sub_categories: general_sub_categories,
       general_range: general_range,
       cruise_image: cruiseImageBase64,
       sales_banner_image: salesBannerImageBase64,

@@ -156,6 +156,10 @@ const  formScehma = new mongoose.Schema({
         type: [String],
         default: []
     },
+    general_sub_categories : {
+        type: [String],
+        default: []
+    },
     general_range : {
         type :  String,
         default : null
