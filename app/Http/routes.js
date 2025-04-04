@@ -8,6 +8,7 @@ const middleware = require("../Http/Middleware");
 const enquiryController = require("../Http/Controller/enquiry/enquiry");
 const newBannerController = require("../Http/Controller/newBanner/newBanner");
 const categoryController = require("../Http/Controller/category/category");
+const subCategoryController = require("../Http/Controller/subCategory/subCategory");
 
 const FAQController = require("../Http/Controller/faq/faq");
 const NewFAQController = require("../Http/Controller/faq/newFAQ");
@@ -70,19 +71,48 @@ router.patch(
   newBannerController.newBannerUpdate
 );
 router.delete("/newBanner/:id", newBannerController.newBannerDelete);
+
 // add category
 router.post(
   "/newCategory/",
   middleware.uploadCategoryImage,
   categoryController.categorySave
 );
+
 router.get("/newCategory/", categoryController.categoryGet);
+
 router.patch(
   "/newCategory/:id",
   middleware.uploadCategoryImage,
   categoryController.categoryUpdate
 );
 router.delete("/newCategory/:id", categoryController.categoryDelete);
+
+// sub category
+router.post(
+  "/sub-category/add-new",
+  middleware.verifyToken,
+  middleware.uploadSubCategoryImage,
+  subCategoryController.subCategorySave
+);
+router.get(
+  "/sub-category/get-all",
+  middleware.verifyToken,
+  subCategoryController.subCategoryGet
+);
+
+router.put(
+  "/sub-category/update-subcategory/:id",
+  middleware.verifyToken,
+  middleware.uploadSubCategoryImage,
+  subCategoryController.subCategoryUpdate
+);
+
+router.delete(
+  "/sub-category/delete-subcategory/:id",
+  middleware.verifyToken,
+  subCategoryController.subCategoryDelete
+);
 
 //FAQ
 router.post("/add-newfaq/", middleware.uploadFAQImage, FAQController.FAQSave);
