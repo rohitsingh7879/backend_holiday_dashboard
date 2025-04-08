@@ -425,8 +425,11 @@ newPackages_obj.newpackageSave = async (req, res) => {
 
 newPackages_obj.newpackageGet = async (req, res) => {
   try {
-    const { id, page = 1, limit = 10, region, operator } = req.query;
-    const skip = (page - 1) * limit;
+    const { id, page = 1, limit = 10, region, operator, type } = req.query;
+
+    const pageNumber = parseInt(page, 10);
+    const limitNumber = parseInt(limit, 10);
+    const skip = (pageNumber - 1) * limitNumber;
 
     if (id) {
       const getData = await formSchemaModel.find({ _id: id });
@@ -456,6 +459,9 @@ newPackages_obj.newpackageGet = async (req, res) => {
       if (operator) {
         filterQuery.operator = operator;
       }
+      if (type && type !== "All") {
+        filterQuery.general_type = type;
+      }
 
       const getData = await formSchemaModel
         .find(filterQuery)
@@ -463,7 +469,7 @@ newPackages_obj.newpackageGet = async (req, res) => {
         .limit(parseInt(limit))
         .exec();
 
-      const totalRecords = await formSchemaModel.countDocuments();
+      const totalRecords = await formSchemaModel.countDocuments(filterQuery);
 
       const totalPages = Math.ceil(totalRecords / limit);
 
@@ -472,6 +478,12 @@ newPackages_obj.newpackageGet = async (req, res) => {
           message: "Data fetched successfully",
           success: true,
           data: getData,
+          pagination: {
+            page: pageNumber,
+            limit: limitNumber,
+            total: totalRecords,
+            totalPages: totalPages,
+          },
           totalRecords,
           totalPages,
           currentPage: parseInt(page),
@@ -1148,33 +1160,34 @@ newPackages_obj.newpackageSearchFilter = async (req, res) => {
 
     // Handle the `duration` condition
     if (duration) {
-      let durationValue = Number(duration); 
+      let durationValue = Number(duration);
       if (!isNaN(durationValue) && durationValue >= 0 && durationValue <= 50) {
-       
         filter.$expr = filter.$expr || {};
-    
-        filter.$expr.cruise_nights_lte = { 
-          $lte: [{ $toDouble: "$cruise_nights" }, durationValue]
+
+        filter.$expr.cruise_nights_lte = {
+          $lte: [{ $toDouble: "$cruise_nights" }, durationValue],
         };
       }
     }
-    
+
     // Handle the `price_range` condition
     if (price_range) {
-      let price_rangeValue = Number(price_range); 
-      if (!isNaN(price_rangeValue) && price_rangeValue >= 0 && price_rangeValue <= 50) {
-
+      let price_rangeValue = Number(price_range);
+      if (
+        !isNaN(price_rangeValue) &&
+        price_rangeValue >= 0 &&
+        price_rangeValue <= 50
+      ) {
         filter.$expr = filter.$expr || {};
-    
+
         filter.$expr.priceStartFrom_lte = {
-          $lte: [{ $toDouble: "$priceStartFrom" }, price_rangeValue]
+          $lte: [{ $toDouble: "$priceStartFrom" }, price_rangeValue],
         };
       }
     }
-    
+
     // Now `filter` will have both conditions merged if both `duration` and `price_range` are present
     // console.log(filter);
-    
 
     // if (price_range) {
     //   filter.package_cruise_value1 = price_range;
@@ -1339,4 +1352,3 @@ newPackages_obj.newpackagePickCruiseCollection = async (req, res) => {
 };
 
 module.exports = newPackages_obj;
- 
