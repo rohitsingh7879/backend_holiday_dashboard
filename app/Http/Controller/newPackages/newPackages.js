@@ -1349,7 +1349,7 @@ newPackages_obj.newpackageSearchFilter = async (req, res) => {
     // }else{
     //   searchFilterData = await formSchemaModel.find(filter);
     // }
-    console.log("filtr", filter);
+    // console.log("filtr", filter);
     const totalPackages = await formSchemaModel.countDocuments(filter);
 
     if (recommended && Object.keys(SortQuery).length > 0) {
