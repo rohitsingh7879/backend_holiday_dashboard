@@ -1128,7 +1128,8 @@ newPackages_obj.newpackageSearchFilter = async (req, res) => {
     // console.log("---search Filter-----", req.query);
     let {
       cruise_category,
-      departure_month,
+      departure_month_start,
+      departure_month_end,
       destination,
       cruise_line,
       cruise_ship,
@@ -1139,8 +1140,20 @@ newPackages_obj.newpackageSearchFilter = async (req, res) => {
       page = 1,
       limit = 10,
     } = req.query;
-    const skip = (page - 1) * limit;
-    // Constructing a dynamic filter object
+
+    const pageNumber = parseInt(page, 10);
+    const limitNumber = parseInt(limit, 10);
+
+    if (pageNumber <= 0 || limitNumber <= 0) {
+      return res.status(400).json({
+        message: "Page and limit must be positive integers.",
+        success: false,
+        data: "",
+      });
+    }
+
+    const skip = (pageNumber - 1) * limitNumber;
+
     let filter = {};
 
     if (cruise_category) {
@@ -1159,30 +1172,32 @@ newPackages_obj.newpackageSearchFilter = async (req, res) => {
     }
 
     // Handle the `duration` condition
-    if (duration) {
-      let durationValue = Number(duration);
-      if (!isNaN(durationValue) && durationValue >= 0 && durationValue <= 50) {
-        filter.$expr = filter.$expr || {};
-
-        filter.$expr.cruise_nights_lte = {
-          $lte: [{ $toDouble: "$cruise_nights" }, durationValue],
-        };
+    const exprConditions = [];
+    if (duration || price_range) {
+      if (duration) {
+        const durationValue = Number(duration);
+        if (
+          !isNaN(durationValue) &&
+          durationValue >= 0 &&
+          durationValue <= 50
+        ) {
+          exprConditions.push({
+            $gte: [{ $toDouble: "$cruise_nights" }, durationValue],
+          });
+        }
       }
-    }
 
-    // Handle the `price_range` condition
-    if (price_range) {
-      let price_rangeValue = Number(price_range);
-      if (
-        !isNaN(price_rangeValue) &&
-        price_rangeValue >= 0 &&
-        price_rangeValue <= 50
-      ) {
-        filter.$expr = filter.$expr || {};
-
-        filter.$expr.priceStartFrom_lte = {
-          $lte: [{ $toDouble: "$priceStartFrom" }, price_rangeValue],
-        };
+      if (price_range) {
+        const priceRangeValue = Number(price_range);
+        if (
+          !isNaN(priceRangeValue) &&
+          priceRangeValue >= 0 &&
+          priceRangeValue <= 50000
+        ) {
+          exprConditions.push({
+            $gte: [{ $toDouble: "$priceStartFrom" }, priceRangeValue],
+          });
+        }
       }
     }
 
@@ -1193,12 +1208,108 @@ newPackages_obj.newpackageSearchFilter = async (req, res) => {
     //   filter.package_cruise_value1 = price_range;
     //   filter.priceStartFrom = { $lte: price_range };
     // }
-    if (departure_month) {
-      departure_month = moment(departure_month, "DD MMMM YYYY").unix();
+    // if (departure_month) {
+    //   departure_month = moment(departure_month, "DD MMMM YYYY").unix();
+    //   filter.itinerary = {
+    //     $elemMatch: { check_in_date: { $gte: departure_month } },
+    //   };
+    // }
+    if (departure_month_start && departure_month_end) {
+      departure_month_start = moment(new Date(departure_month_start)).unix();
+      departure_month_end = moment(new Date(departure_month_end)).unix();
+
+      exprConditions.push(
+        {
+          $gte: [
+            {
+              $toInt: {
+                $replaceAll: {
+                  input: { $arrayElemAt: ["$itinerary.check_in_date", 0] },
+                  find: "-",
+                  replacement: "",
+                },
+              },
+            },
+            departure_month_start,
+          ],
+        },
+        {
+          $lte: [
+            {
+              $toInt: {
+                $replaceAll: {
+                  input: { $arrayElemAt: ["$itinerary.check_in_date", 0] },
+                  find: "-",
+                  replacement: "",
+                },
+              },
+            },
+            departure_month_end,
+          ],
+        }
+      );
+      // filter.itinerary = {
+      //   0: {
+      //     check_in_date: {
+      //       $gte: departure_month_start,
+      //       $lte: departure_month_end,
+      //     },
+      //   },
+      // };
+    } else if (departure_month_start) {
+      departure_month_start = moment(new Date(departure_month_start)).unix();
+
+      exprConditions.push({
+        $gte: [
+          {
+            $toInt: {
+              $replaceAll: {
+                input: { $arrayElemAt: ["$itinerary.check_in_date", 0] },
+                find: "-",
+                replacement: "",
+              },
+            },
+          },
+          departure_month_start,
+        ],
+      });
+      // filter.itinerary = {
+      //   0: {
+      //     check_in_date: {
+      //       $gte: departure_month_start,
+      //     },
+      //   },
+      // };
+    } else if (departure_month_end) {
+      departure_month_end = moment(new Date(departure_month_end)).unix();
+
+      exprConditions.push({
+        $lte: [
+          {
+            $toInt: {
+              $replaceAll: {
+                input: { $arrayElemAt: ["$itinerary.check_in_date", 0] },
+                find: "-",
+                replacement: "",
+              },
+            },
+          },
+          departure_month_end,
+        ],
+      });
       filter.itinerary = {
-        $elemMatch: { check_in_date: { $gte: departure_month } },
+        0: {
+          check_in_date: {
+            $lte: departure_month_end,
+          },
+        },
       };
     }
+
+    if (exprConditions.length > 0) {
+      filter.$expr = { $and: exprConditions };
+    }
+
     let SortQuery = {};
     if (recommended) {
       if (recommended == "Price (Low to High)") {
@@ -1212,7 +1323,6 @@ newPackages_obj.newpackageSearchFilter = async (req, res) => {
       }
     }
 
-    console.log("-- recommend--", recommended);
     //  console.log("--- SortQuery---",SortQuery);
     let searchFilterData = [];
     // if(recommended  && Object.keys(SortQuery).length > 0){
@@ -1239,9 +1349,12 @@ newPackages_obj.newpackageSearchFilter = async (req, res) => {
     // }else{
     //   searchFilterData = await formSchemaModel.find(filter);
     // }
-    // console.log("filtr", filter);
+    console.log("filtr", filter);
+    const totalPackages = await formSchemaModel.countDocuments(filter);
 
     if (recommended && Object.keys(SortQuery).length > 0) {
+      console.log("-- recommend--", recommended);
+
       searchFilterData = await formSchemaModel.aggregate([
         { $match: filter },
         {
@@ -1272,7 +1385,7 @@ newPackages_obj.newpackageSearchFilter = async (req, res) => {
       searchFilterData = await formSchemaModel
         .find(filter)
         .skip(skip)
-        .limit(parseInt(limit))
+        .limit(limitNumber)
         .exec();
     }
     // console.log("---searchFilterData--- ",searchFilterData);
@@ -1282,6 +1395,12 @@ newPackages_obj.newpackageSearchFilter = async (req, res) => {
       success: true,
       data: searchFilterData,
       status: 200,
+      pagination: {
+        page: pageNumber,
+        limit: limitNumber,
+        total: totalPackages,
+        totalPages: Math.ceil(totalPackages / limitNumber),
+      },
     });
   } catch (error) {
     console.error("Error in searchCruises:", error);
