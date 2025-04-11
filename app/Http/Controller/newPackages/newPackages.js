@@ -1123,6 +1123,296 @@ newPackages_obj.newpackageUpdate = async (req, res) => {
   }
 };
 
+// newPackages_obj.newpackageSearchFilter = async (req, res) => {
+//   try {
+//     // console.log("---search Filter-----", req.query);
+//     let {
+//       cruise_category,
+//       departure_month_start,
+//       departure_month_end,
+//       destination,
+//       cruise_line,
+//       cruise_ship,
+//       ports,
+//       duration,
+//       price_range,
+//       recommended,
+//       page = 1,
+//       limit = 10,
+//     } = req.query;
+
+//     const pageNumber = parseInt(page, 10);
+//     const limitNumber = parseInt(limit, 10);
+
+//     if (pageNumber <= 0 || limitNumber <= 0) {
+//       return res.status(400).json({
+//         message: "Page and limit must be positive integers.",
+//         success: false,
+//         data: "",
+//       });
+//     }
+
+//     const skip = (pageNumber - 1) * limitNumber;
+
+//     let filter = {};
+
+//     if (cruise_category) {
+//       cruise_category = JSON.parse(cruise_category);
+//       if (Array.isArray(cruise_category) && cruise_category.length > 0) {
+//         // filter.general_categories = cruise_category;
+//         filter.general_categories = { $in: cruise_category };
+//       }
+//     }
+//     // console.log("---cruise_category last-- ",cruise_category);
+//     if (destination) filter.region = destination;
+//     if (cruise_line) filter.operator = cruise_line;
+//     if (cruise_ship) filter.ship = cruise_ship;
+//     if (ports) {
+//       filter.itinerary = { $elemMatch: { port: ports } };
+//     }
+
+//     // Handle the `duration` condition
+//     const exprConditions = [];
+//     if (duration || price_range) {
+//       if (duration) {
+//         const durationValue = Number(duration);
+//         if (
+//           !isNaN(durationValue) &&
+//           durationValue >= 0 &&
+//           durationValue <= 50
+//         ) {
+//           exprConditions.push({
+//             $gte: [{ $toDouble: "$cruise_nights" }, durationValue],
+//           });
+//         }
+//       }
+
+//       if (price_range) {
+//         const priceRangeValue = Number(price_range);
+//         if (
+//           !isNaN(priceRangeValue) &&
+//           priceRangeValue >= 0 &&
+//           priceRangeValue <= 50000
+//         ) {
+//           exprConditions.push({
+//             $gte: [{ $toDouble: "$priceStartFrom" }, priceRangeValue],
+//           });
+//         }
+//       }
+//     }
+
+//     // Now `filter` will have both conditions merged if both `duration` and `price_range` are present
+//     // console.log(filter);
+
+//     // if (price_range) {
+//     //   filter.package_cruise_value1 = price_range;
+//     //   filter.priceStartFrom = { $lte: price_range };
+//     // }
+//     // if (departure_month) {
+//     //   departure_month = moment(departure_month, "DD MMMM YYYY").unix();
+//     //   filter.itinerary = {
+//     //     $elemMatch: { check_in_date: { $gte: departure_month } },
+//     //   };
+//     // }
+//     if (departure_month_start && departure_month_end) {
+//       departure_month_start = moment(new Date(departure_month_start)).unix();
+//       departure_month_end = moment(new Date(departure_month_end)).unix();
+
+//       exprConditions.push(
+//         {
+//           $gte: [
+//             {
+//               $toInt: {
+//                 $replaceAll: {
+//                   input: { $arrayElemAt: ["$itinerary.check_in_date", 0] },
+//                   find: "-",
+//                   replacement: "",
+//                 },
+//               },
+//             },
+//             departure_month_start,
+//           ],
+//         },
+//         {
+//           $lte: [
+//             {
+//               $toInt: {
+//                 $replaceAll: {
+//                   input: { $arrayElemAt: ["$itinerary.check_in_date", 0] },
+//                   find: "-",
+//                   replacement: "",
+//                 },
+//               },
+//             },
+//             departure_month_end,
+//           ],
+//         }
+//       );
+//       // filter.itinerary = {
+//       //   0: {
+//       //     check_in_date: {
+//       //       $gte: departure_month_start,
+//       //       $lte: departure_month_end,
+//       //     },
+//       //   },
+//       // };
+//     } else if (departure_month_start) {
+//       departure_month_start = moment(new Date(departure_month_start)).unix();
+
+//       exprConditions.push({
+//         $gte: [
+//           {
+//             $toInt: {
+//               $replaceAll: {
+//                 input: { $arrayElemAt: ["$itinerary.check_in_date", 0] },
+//                 find: "-",
+//                 replacement: "",
+//               },
+//             },
+//           },
+//           departure_month_start,
+//         ],
+//       });
+//       // filter.itinerary = {
+//       //   0: {
+//       //     check_in_date: {
+//       //       $gte: departure_month_start,
+//       //     },
+//       //   },
+//       // };
+//     } else if (departure_month_end) {
+//       departure_month_end = moment(new Date(departure_month_end)).unix();
+
+//       exprConditions.push({
+//         $lte: [
+//           {
+//             $toInt: {
+//               $replaceAll: {
+//                 input: { $arrayElemAt: ["$itinerary.check_in_date", 0] },
+//                 find: "-",
+//                 replacement: "",
+//               },
+//             },
+//           },
+//           departure_month_end,
+//         ],
+//       });
+//       filter.itinerary = {
+//         0: {
+//           check_in_date: {
+//             $lte: departure_month_end,
+//           },
+//         },
+//       };
+//     }
+
+//     if (exprConditions.length > 0) {
+//       filter.$expr = { $and: exprConditions };
+//     }
+
+//     let SortQuery = {};
+//     if (recommended) {
+//       if (recommended == "Price (Low to High)") {
+//         SortQuery["package_cruise_value1_numeric"] = 1;
+//       } else if (recommended == "Price (High to Low)") {
+//         SortQuery["package_cruise_value1_numeric"] = -1;
+//       } else if (recommended == "Departure Date (Soonest First)") {
+//         SortQuery["itinerary.check_in_date.0"] = 1;
+//       } else if (recommended == "Departure Date (Furthest First)") {
+//         SortQuery["last_check_in_date"] = -1;
+//       }
+//     }
+
+//     //  console.log("--- SortQuery---",SortQuery);
+//     let searchFilterData = [];
+//     // if(recommended  && Object.keys(SortQuery).length > 0){
+//     //   // searchFilterData = await formSchemaModel.find(filter).sort(SortQuery);
+//     //   searchFilterData = await formSchemaModel.aggregate([
+//     //     { $match: filter },
+//     //     {
+//     //       $addFields: {
+//     //         package_cruise_value1_numeric: {
+//     //           $cond: {
+//     //             if: { $or: [
+//     //               { $eq: ["$package_cruise_value1", ""] },
+//     //               { $eq: ["$package_cruise_value1", null] }
+//     //             ] },
+//     //             then: 0,
+//     //             else: { $toDouble: "$package_cruise_value1" }
+//     //           }
+//     //         },
+//     //         last_check_in_date: { $arrayElemAt: ["$itinerary.check_in_date", 0] }
+//     //       }
+//     //     },
+//     //     { $sort: SortQuery }
+//     //   ]);
+//     // }else{
+//     //   searchFilterData = await formSchemaModel.find(filter);
+//     // }
+//     // console.log("filtr", filter);
+//     const totalPackages = await formSchemaModel.countDocuments(filter);
+
+//     if (recommended && Object.keys(SortQuery).length > 0) {
+//       console.log("-- recommend--", recommended);
+
+//       searchFilterData = await formSchemaModel.aggregate([
+//         { $match: filter },
+//         {
+//           $addFields: {
+//             package_cruise_value1_numeric: {
+//               $cond: {
+//                 if: {
+//                   $or: [
+//                     { $eq: ["$package_cruise_value1", ""] },
+//                     { $eq: ["$package_cruise_value1", null] },
+//                     { $eq: ["$package_cruise_value1", undefined] },
+//                   ],
+//                 },
+//                 then: 0,
+//                 else: { $toDouble: "$package_cruise_value1" },
+//               },
+//             },
+//             last_check_in_date: {
+//               $arrayElemAt: ["$itinerary.check_in_date", 0],
+//             },
+//           },
+//         },
+//         {
+//           $sort: SortQuery,
+//         },
+//       ]);
+//     } else {
+//       searchFilterData = await formSchemaModel
+//         .find(filter)
+//         .skip(skip)
+//         .limit(limitNumber)
+//         .exec();
+//     }
+//     // console.log("---searchFilterData--- ",searchFilterData);
+
+//     return res.status(200).json({
+//       message: "fetch data Successfully",
+//       success: true,
+//       data: searchFilterData,
+//       status: 200,
+//       pagination: {
+//         page: pageNumber,
+//         limit: limitNumber,
+//         total: totalPackages,
+//         totalPages: Math.ceil(totalPackages / limitNumber),
+//       },
+//     });
+//   } catch (error) {
+//     console.error("Error in searchCruises:", error);
+//     return res.status(500).json({
+//       message: "Internal Server Error",
+//       data: "",
+//       success: false,
+//       status: 500,
+//     });
+//   }
+// };
+
 newPackages_obj.newpackageSearchFilter = async (req, res) => {
   try {
     // console.log("---search Filter-----", req.query);
@@ -1137,6 +1427,7 @@ newPackages_obj.newpackageSearchFilter = async (req, res) => {
       duration,
       price_range,
       recommended,
+      search_text,
       page = 1,
       limit = 10,
     } = req.query;
@@ -1201,19 +1492,6 @@ newPackages_obj.newpackageSearchFilter = async (req, res) => {
       }
     }
 
-    // Now `filter` will have both conditions merged if both `duration` and `price_range` are present
-    // console.log(filter);
-
-    // if (price_range) {
-    //   filter.package_cruise_value1 = price_range;
-    //   filter.priceStartFrom = { $lte: price_range };
-    // }
-    // if (departure_month) {
-    //   departure_month = moment(departure_month, "DD MMMM YYYY").unix();
-    //   filter.itinerary = {
-    //     $elemMatch: { check_in_date: { $gte: departure_month } },
-    //   };
-    // }
     if (departure_month_start && departure_month_end) {
       departure_month_start = moment(new Date(departure_month_start)).unix();
       departure_month_end = moment(new Date(departure_month_end)).unix();
@@ -1248,14 +1526,6 @@ newPackages_obj.newpackageSearchFilter = async (req, res) => {
           ],
         }
       );
-      // filter.itinerary = {
-      //   0: {
-      //     check_in_date: {
-      //       $gte: departure_month_start,
-      //       $lte: departure_month_end,
-      //     },
-      //   },
-      // };
     } else if (departure_month_start) {
       departure_month_start = moment(new Date(departure_month_start)).unix();
 
@@ -1273,13 +1543,6 @@ newPackages_obj.newpackageSearchFilter = async (req, res) => {
           departure_month_start,
         ],
       });
-      // filter.itinerary = {
-      //   0: {
-      //     check_in_date: {
-      //       $gte: departure_month_start,
-      //     },
-      //   },
-      // };
     } else if (departure_month_end) {
       departure_month_end = moment(new Date(departure_month_end)).unix();
 
@@ -1310,84 +1573,43 @@ newPackages_obj.newpackageSearchFilter = async (req, res) => {
       filter.$expr = { $and: exprConditions };
     }
 
-    let SortQuery = {};
-    if (recommended) {
-      if (recommended == "Price (Low to High)") {
-        SortQuery["package_cruise_value1_numeric"] = 1;
-      } else if (recommended == "Price (High to Low)") {
-        SortQuery["package_cruise_value1_numeric"] = -1;
-      } else if (recommended == "Departure Date (Soonest First)") {
-        SortQuery["itinerary.check_in_date.0"] = 1;
-      } else if (recommended == "Departure Date (Furthest First)") {
-        SortQuery["last_check_in_date"] = -1;
-      }
-    }
-
     //  console.log("--- SortQuery---",SortQuery);
-    let searchFilterData = [];
-    // if(recommended  && Object.keys(SortQuery).length > 0){
-    //   // searchFilterData = await formSchemaModel.find(filter).sort(SortQuery);
-    //   searchFilterData = await formSchemaModel.aggregate([
-    //     { $match: filter },
-    //     {
-    //       $addFields: {
-    //         package_cruise_value1_numeric: {
-    //           $cond: {
-    //             if: { $or: [
-    //               { $eq: ["$package_cruise_value1", ""] },
-    //               { $eq: ["$package_cruise_value1", null] }
-    //             ] },
-    //             then: 0,
-    //             else: { $toDouble: "$package_cruise_value1" }
-    //           }
-    //         },
-    //         last_check_in_date: { $arrayElemAt: ["$itinerary.check_in_date", 0] }
-    //       }
-    //     },
-    //     { $sort: SortQuery }
-    //   ]);
-    // }else{
-    //   searchFilterData = await formSchemaModel.find(filter);
-    // }
-    // console.log("filtr", filter);
-    const totalPackages = await formSchemaModel.countDocuments(filter);
-
-    if (recommended && Object.keys(SortQuery).length > 0) {
-      console.log("-- recommend--", recommended);
-
-      searchFilterData = await formSchemaModel.aggregate([
-        { $match: filter },
-        {
-          $addFields: {
-            package_cruise_value1_numeric: {
-              $cond: {
-                if: {
-                  $or: [
-                    { $eq: ["$package_cruise_value1", ""] },
-                    { $eq: ["$package_cruise_value1", null] },
-                    { $eq: ["$package_cruise_value1", undefined] },
-                  ],
-                },
-                then: 0,
-                else: { $toDouble: "$package_cruise_value1" },
-              },
-            },
-            last_check_in_date: {
-              $arrayElemAt: ["$itinerary.check_in_date", 0],
-            },
-          },
-        },
-        {
-          $sort: SortQuery,
-        },
-      ]);
-    } else {
-      searchFilterData = await formSchemaModel
-        .find(filter)
-        .skip(skip)
-        .limit(limitNumber)
-        .exec();
+    // let searchFilterData = [];
+    let pipeline = [];
+     if (search_text) {
+      pipeline.push({
+        $search: {
+          index: "default", 
+          text: {
+            query: search_text,
+            path: {
+              wildcard: "*"
+            }
+            // fuzzy: {}  optional: enables typo tolerance
+          }
+        }
+      });
     }
+    if (Object.keys(filter).length > 0) {
+      pipeline.push({ $match: filter });
+    }
+
+    pipeline.push({ $skip: skip });
+    pipeline.push({ $limit: limitNumber });
+    // console.log("filtr", filter);
+
+    const [searchFilterData, totalPackages] = await Promise.all([
+      formSchemaModel.aggregate(pipeline),
+      formSchemaModel.countDocuments(filter)
+    ]);
+
+    // const totalPackages = await formSchemaModel.countDocuments(filter);
+
+    // searchFilterData = await formSchemaModel
+    //   .find(filter)
+    //   .skip(skip)
+    //   .limit(limitNumber)
+    //   .exec();
     // console.log("---searchFilterData--- ",searchFilterData);
 
     return res.status(200).json({
