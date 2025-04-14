@@ -1576,32 +1576,39 @@ newPackages_obj.newpackageSearchFilter = async (req, res) => {
     //  console.log("--- SortQuery---",SortQuery);
     // let searchFilterData = [];
     let pipeline = [];
-     if (search_text) {
-      pipeline.push({
+    let countPipeline = [];
+    if (search_text) {
+      const searchStage = {
         $search: {
-          index: "default", 
+          index: "default",
           text: {
             query: search_text,
             path: {
-              wildcard: "*"
-            }
-            // fuzzy: {}  optional: enables typo tolerance
-          }
-        }
-      });
+              wildcard: "*",
+            },
+            // fuzzy: {}  // optional: typo tolerance
+          },
+        },
+      };
+      pipeline.push(searchStage);
+      countPipeline.push(searchStage);
     }
+
     if (Object.keys(filter).length > 0) {
-      pipeline.push({ $match: filter });
+      const matchStage = { $match: filter };
+      pipeline.push(matchStage);
+      countPipeline.push(matchStage);
     }
 
     pipeline.push({ $skip: skip });
     pipeline.push({ $limit: limitNumber });
-    // console.log("filtr", filter);
 
-    const [searchFilterData, totalPackages] = await Promise.all([
+    const [searchFilterData, totalPackagesData] = await Promise.all([
       formSchemaModel.aggregate(pipeline),
-      formSchemaModel.countDocuments(filter)
+      formSchemaModel.aggregate([...countPipeline, { $count: "total" }]),
     ]);
+
+    const totalPackages = totalPackagesData[0]?.total || 0;
 
     // const totalPackages = await formSchemaModel.countDocuments(filter);
 

@@ -2,6 +2,7 @@ const {
   subscriberSchema,
   subscribeWithMail,
 } = require("../../../Models/subscribeModel");
+const addSubscriber = require("../mailChimp/mailChimp");
 const subscribe_obj = {};
 
 subscribe_obj.subscribeSave = async (req, res) => {
@@ -31,9 +32,32 @@ subscribe_obj.subscribeSave = async (req, res) => {
       subscriberEmail: subscriberEmail,
     });
 
-    const subscribeResult = await subscribeObj.save();
+    const mailChimpResult = await addSubscriber(
+      subscriberEmail,
+      subscriberFirstName,
+      subscriberSurName
+    );
+    
+    // if (mailChimpResult.success) {
+    //   console.log("✅ Successfully added subscriber:", mailChimpResult.data);
+    // } else {
+    //   console.error("❌ Failed to add subscriber:", mailChimpResult.error);
+    // }
+    
+    let subscribeResult;
 
-    if (subscribeResult) {
+    if (mailChimpResult?.data?.id) {
+       subscribeResult = await subscribeObj.save();
+    }else{
+      return res.status(400).json({
+        message: mailChimpResult?.error?.title,
+        success: false,
+        data: "",
+        status: 400,
+        });
+    }
+
+    if (subscribeResult && mailChimpResult?.data?.id) {
       return res.status(200).json({
         message: "Successfully added subscriber.",
         success: true,

@@ -28,6 +28,7 @@ const {
   forgotPassword,
   resetPassword,
 } = require("./Controller/admin/adminController");
+const { getAllMembers,addSubscriber } = require("./Controller/mailChimp/mailChimpController");
 const upload = multer({ dest: "uploads/" });
 // add New Packages cruises
 router.post(
@@ -151,6 +152,10 @@ router.get(
   "/subscriber/get-all-email",
   subscriberController.subscribeWithEmailGet
 );
+
+
+router.get('/subscriber/get-all-members',getAllMembers)
+router.post('/subscriber/add-member',addSubscriber)
 
 //static Content
 router.post(
