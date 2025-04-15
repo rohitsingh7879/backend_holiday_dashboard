@@ -44,6 +44,8 @@ const itinerarySchema = new mongoose.Schema(
         check_out_date: { type: String, default: null },
         description : { type : String , default : null},
         day : { type : String , default : null},
+        latitude : { type : String , default : null},
+        longitude : { type : String , default : null},
         images: { type: [itineraryImageSchema], default: [] },
     }
 );
