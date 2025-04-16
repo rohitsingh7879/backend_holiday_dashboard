@@ -60,7 +60,10 @@ middleware.uploadImageUpdate = (req, res, next) => {
     },
   });
 
-  const upload = multer({ storage: storage }).fields([
+  const upload = multer({
+    storage: storage,
+    limits: { fileSize: 50 * 1024 * 1024 },
+  }).fields([
     { name: "cruise_image", maxCount: 1 },
     { name: "sales_banner_image", maxCount: 1 },
     { name: "cruise_banner_image", maxCount: 1 },
@@ -246,43 +249,48 @@ middleware.uploadMultipleFiles = (req, res, next) => {
   });
 };
 
-
 middleware.validateRegisterInput = [
-  body('userName')
+  body("userName")
     .isString()
-    .withMessage('User name must be a string')
+    .withMessage("User name must be a string")
     .isLength({ min: 3, max: 20 })
-    .withMessage('User name must be between 3 and 20 characters'),
+    .withMessage("User name must be between 3 and 20 characters"),
 
-  body('password')
+  body("password")
     .isLength({ min: 6 })
-    .withMessage('Password must be at least 6 characters long')
+    .withMessage("Password must be at least 6 characters long")
     .matches(/^(?=.*[0-9])(?=.*[!@#$%^&*])[A-Za-z0-9!@#$%^&*]{6,}$/)
-    .withMessage('Password must contain at least one number and one special character'),
+    .withMessage(
+      "Password must contain at least one number and one special character"
+    ),
 ];
 middleware.validateUpdatePassword = [
-  body('userName')
+  body("userName")
     .isString()
-    .withMessage('User name must be a string')
+    .withMessage("User name must be a string")
     .isLength({ min: 3, max: 20 })
-    .withMessage('User name must be between 3 and 20 characters'),
+    .withMessage("User name must be between 3 and 20 characters"),
 
-  body('oldPassword')
+  body("oldPassword")
     .isLength({ min: 6 })
-    .withMessage('Password must be at least 6 characters long')
+    .withMessage("Password must be at least 6 characters long")
     .matches(/^(?=.*[0-9])(?=.*[!@#$%^&*])[A-Za-z0-9!@#$%^&*]{6,}$/)
-    .withMessage('Password must contain at least one number and one special character'),
+    .withMessage(
+      "Password must contain at least one number and one special character"
+    ),
 
-  body('newPassword')
+  body("newPassword")
     .isLength({ min: 6 })
-    .withMessage('Password must be at least 6 characters long')
+    .withMessage("Password must be at least 6 characters long")
     .matches(/^(?=.*[0-9])(?=.*[!@#$%^&*])[A-Za-z0-9!@#$%^&*]{6,}$/)
-    .withMessage('Password must contain at least one number and one special character'),
+    .withMessage(
+      "Password must contain at least one number and one special character"
+    ),
 ];
 
 middleware.verifyToken = (req, res, next) => {
-  
-  const token = req.headers.authorization && req.headers.authorization.split(' ')[1];
+  const token =
+    req.headers.authorization && req.headers.authorization.split(" ")[1];
 
   if (!token) {
     return res.status(401).json({ message: "No token, authorization denied" });
@@ -290,13 +298,11 @@ middleware.verifyToken = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded; 
-    next(); 
-
+    req.user = decoded;
+    next();
   } catch (error) {
     return res.status(401).json({ message: "Invalid or expired token" });
   }
 };
 
 module.exports = middleware;
-  
