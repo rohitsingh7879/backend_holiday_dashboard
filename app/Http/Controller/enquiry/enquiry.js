@@ -203,7 +203,7 @@ enquiry.enquirySave = async (req, res) => {
 
       await transporter.sendMail({
         from: `"Holiday2.com" <${process.env.EMAIL_USER}>`,
-        to: process.env.EMAIL_FOR_CONTACT_AND_ENQUIRY,
+        to: process.env.EMAIL_FOR_ENQUIRY,
         subject: `📥 New Cruise Enquiry Received – ${fname} ${lname}`,
         html: `
          <div style="max-width: 650px; margin: auto; font-family: Arial, sans-serif; background-color: #ffffff; border-radius: 8px; overflow: hidden; border: 1px solid #e0e0e0;">

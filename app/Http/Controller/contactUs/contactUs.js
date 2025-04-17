@@ -107,7 +107,7 @@ contact_us.contactSave = async (req, res) => {
 
       await transporter.sendMail({
         from: `"Holiday2.com" <${process.env.EMAIL_USER}>`,
-        to: process.env.EMAIL_FOR_CONTACT_AND_ENQUIRY,
+        to: process.env.EMAIL_FOR_CONTACT,
         subject: "New Contact Form Submission",
         html: `
           <div style="max-width: 600px; margin: auto; font-family: Arial, sans-serif; border: 1px solid #e0e0e0; border-radius: 10px; background-color: #ffffff; color: #333; padding: 24px;">
