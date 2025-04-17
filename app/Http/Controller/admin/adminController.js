@@ -1,5 +1,5 @@
 const Admin = require("../../../Models/adminModel");
-
+const path = require("path");
 const nodemailer = require("nodemailer");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
@@ -167,8 +167,8 @@ const forgotPassword = async (req, res) => {
     });
 
     const transporter = nodemailer.createTransport({
-      host: "smtp.ethereal.email",
-      port: 587,
+      host: process.env.EMAIL_HOST,
+      port: process.env.EMAIL_PORT,
       secure: false,
       auth: {
         user: process.env.EMAIL_USER,
@@ -179,27 +179,60 @@ const forgotPassword = async (req, res) => {
     const resetUrl = `${process.env.FRONTEND_URL}?token=${resetToken}`;
 
     await transporter.sendMail({
-      from: process.env.EMAIL_USER,
+      from: `"Holiday2.com" <${process.env.EMAIL_USER}>`,
       to: admin?.userName,
       subject: "Password Reset Request",
       html: `
-      <p>Dear Admin,</p>
-      <p>We received a request to reset your password. Click the link below to reset it:</p>
-      <p><a href="${resetUrl}" target="_blank">Click here to reset your password</a></p>
-      <p>This link will expire in 1 hour.</p>
-      <p>If you didn't request a password reset, you can ignore this email.</p>
-      <p>Best regards,<br>Holiday2.com</p>
+     <div style="max-width: 600px; margin: auto; font-family: Arial, sans-serif; border: 1px solid #e0e0e0; border-radius: 10px; background-color: #ffffff; color: #333; padding: 24px;">
+      <div style="text-align: center; margin-bottom: 20px;">
+        <img src="cid:logoImage" alt="Holiday2.com Logo" style="max-width: 180px;" />
+      </div>
+
+      <h2 style="color: #0a85ea;">Password Reset Request</h2>
+
+      <p style="font-size: 16px; line-height: 1.6;">
+        Dear Admin,<br><br>
+        We received a request to reset your password. You can reset it by clicking the button below:
+      </p>
+
+      <div style="text-align: center; margin: 30px 0;">
+        <a href="${resetUrl}" target="_blank" style="background-color: #0a85ea; color: #fff; padding: 12px 24px; text-decoration: none; font-weight: bold; border-radius: 6px; display: inline-block;">
+          Reset Your Password
+        </a>
+      </div>
+
+      <p style="font-size: 15px; line-height: 1.6;">
+        This link will expire in 1 hour for your security.
+      </p>
+
+      <p style="font-size: 15px; line-height: 1.6;">
+        If you didn't request a password reset, you can safely ignore this email.
+      </p>
+
+      <p style="margin-top: 40px;">Best regards,<br /><strong>The Holiday2.com Team</strong></p>
+
+      <hr style="margin: 30px 0; border: none; border-top: 1px solid #e0e0e0;" />
+
+      <footer style="font-size: 12px; color: #777; text-align: center;">
+        © ${new Date().getFullYear()} Holiday2.com. All rights reserved.
+      </footer>
+    </div>
   `,
+      attachments: [
+        {
+          filename: "logo.png",
+          path: path.join(__dirname, "../../../../uploads/logo.png"),
+          cid: "logoImage",
+        },
+      ],
     });
 
-    res
-      .status(200)
-      .json({
-        message: "Password reset link sent",
-        success: true,
-        token:resetToken,
-        status: 200,
-      });
+    return res.status(200).json({
+      message: "Password reset link sent",
+      success: true,
+      token: resetToken,
+      status: 200,
+    });
   } catch (error) {
     return res.status(500).json({
       message: "Internal Server Error",
@@ -229,7 +262,7 @@ const resetPassword = async (req, res) => {
       return res.status(401).json({
         message: "Token has been invalidated due to a password reset",
         success: false,
-        status:401
+        status: 401,
       });
     }
 
@@ -239,21 +272,23 @@ const resetPassword = async (req, res) => {
     admin.tokenVersion += 1;
     await admin.save();
 
-    return res
-      .status(200)
-      .json({ message: "Password successfully updated", success: true,status:200 });
+    return res.status(200).json({
+      message: "Password successfully updated",
+      success: true,
+      status: 200,
+    });
   } catch (error) {
     if (error instanceof jwt.TokenExpiredError) {
       return res.status(401).json({
         message: "Token has expired. Please request a new one.",
         success: false,
-        status:401
+        status: 401,
       });
     } else if (error instanceof jwt.JsonWebTokenError) {
       return res.status(401).json({
         message: "Invalid token. Please request a new one.",
         success: false,
-        status:401
+        status: 401,
       });
     }
 
@@ -261,7 +296,7 @@ const resetPassword = async (req, res) => {
     return res.status(500).json({
       message: "Internal server error",
       success: false,
-      status:500
+      status: 500,
     });
   }
 };
