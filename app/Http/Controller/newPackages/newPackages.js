@@ -425,7 +425,15 @@ newPackages_obj.newpackageSave = async (req, res) => {
 
 newPackages_obj.newpackageGet = async (req, res) => {
   try {
-    const { id, page = 1, limit = 10, region, operator, type } = req.query;
+    const {
+      id,
+      page = 1,
+      limit = 10,
+      region,
+      operator,
+      type,
+      status,
+    } = req.query;
 
     const pageNumber = parseInt(page, 10);
     const limitNumber = parseInt(limit, 10);
@@ -450,9 +458,13 @@ newPackages_obj.newpackageGet = async (req, res) => {
         });
       }
     } else {
-      let filterQuery = {
-        statusPickCollection: true,
-      };
+      let filterQuery = {}; 
+
+      if (status == "true") {
+        filterQuery.statusPickCollection = true;
+      } else if (status == "false") {
+        filterQuery.statusPickCollection = false;
+      }
 
       if (region) {
         filterQuery.region = region;
@@ -474,7 +486,6 @@ newPackages_obj.newpackageGet = async (req, res) => {
       const totalRecords = await formSchemaModel.countDocuments(filterQuery);
 
       const totalPages = Math.ceil(totalRecords / limit);
-
       if (getData) {
         return res.status(200).json({
           message: "Data fetched successfully",
