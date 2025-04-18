@@ -450,7 +450,9 @@ newPackages_obj.newpackageGet = async (req, res) => {
         });
       }
     } else {
-      let filterQuery = {};
+      let filterQuery = {
+        statusPickCollection: true,
+      };
 
       if (region) {
         filterQuery.region = region;
