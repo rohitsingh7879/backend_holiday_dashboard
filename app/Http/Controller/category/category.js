@@ -251,4 +251,57 @@ category_obj.categoryDelete = async (req, res) => {
   }
 };
 
+category_obj.categoryShowOnHome = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status, isShowOnHomePage } = req.body;
+
+    if (!id) {
+      return res.status(400).json({
+        message: "Missing category ID",
+        data: "",
+        success: false,
+        status: 400,
+      });
+    }
+
+    const category = await categorySchema.findById(id);
+    if (!category) {
+      return res.status(404).json({
+        message: "Category not found",
+        data: "",
+        success: false,
+        status: 404,
+      });
+    }
+
+    if (typeof status !== "undefined") {
+      category.status = status; 
+    }
+
+    if (typeof isShowOnHomePage !== "undefined") {
+      category.isShowOnHomePage = isShowOnHomePage;
+    }
+
+    const updatedCategory = await category.save();
+
+    return res.status(200).json({
+      message: "Category updated successfully",
+      data: updatedCategory,
+      success: true,
+      status: 200,
+    });
+  } catch (error) {
+    console.error("Error updating category:", error);
+    return res.status(500).json({
+      message: "Internal Server Error",
+      data: "",
+      success: false,
+      status: 500,
+    });
+  }
+};
+
+
+
 module.exports = category_obj;

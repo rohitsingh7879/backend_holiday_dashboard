@@ -28,7 +28,10 @@ const {
   forgotPassword,
   resetPassword,
 } = require("./Controller/admin/adminController");
-const { getAllMembers,addSubscriber } = require("./Controller/mailChimp/mailChimpController");
+const {
+  getAllMembers,
+  addSubscriber,
+} = require("./Controller/mailChimp/mailChimpController");
 const upload = multer({ dest: "uploads/" });
 // add New Packages cruises
 router.post(
@@ -87,6 +90,12 @@ router.patch(
   middleware.uploadCategoryImage,
   categoryController.categoryUpdate
 );
+
+router.put(
+  "/newCategory/status-home/:id",
+  categoryController.categoryShowOnHome
+);
+
 router.delete("/newCategory/:id", categoryController.categoryDelete);
 
 // sub category
@@ -153,9 +162,8 @@ router.get(
   subscriberController.subscribeWithEmailGet
 );
 
-
-router.get('/subscriber/get-all-members',getAllMembers)
-router.post('/subscriber/add-member',addSubscriber)
+router.get("/subscriber/get-all-members", getAllMembers);
+router.post("/subscriber/add-member", addSubscriber);
 
 //static Content
 router.post(
