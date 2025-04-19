@@ -458,7 +458,7 @@ newPackages_obj.newpackageGet = async (req, res) => {
         });
       }
     } else {
-      let filterQuery = {}; 
+      let filterQuery = {};
 
       if (status == "true") {
         filterQuery.statusPickCollection = true;
@@ -1706,6 +1706,38 @@ newPackages_obj.newpackagePickCruiseCollection = async (req, res) => {
     res.status(500).json({
       message: "Internal Server Error",
       data: "",
+      success: false,
+      status: 500,
+    });
+  }
+};
+
+newPackages_obj.newpackageDelete = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const deletedData = await formSchemaModel.findByIdAndDelete(id);
+
+    if (deletedData) {
+      return res.status(200).json({
+        message: "Data deleted successfully",
+        success: true,
+        status: 200,
+      });
+    } else {
+      return res.status(404).json({
+        message: "Data not found",
+        data: null,
+        success: false,
+        status: 404,
+      });
+    }
+  } catch (error) {
+    console.error("Error deleting data:", error);
+    return res.status(500).json({
+      message: "Internal Server Error",
+      error: error?.message,
+      data: null,
       success: false,
       status: 500,
     });

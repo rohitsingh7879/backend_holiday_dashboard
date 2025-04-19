@@ -40,6 +40,7 @@ router.post(
   newPackageController.newpackageSave
 );
 router.get("/newpackage/", newPackageController.newpackageGet);
+router.delete("/newpackage/:id", newPackageController.newpackageDelete);
 router.patch(
   "/newpackage/:id",
   middleware.uploadImageUpdate,
