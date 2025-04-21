@@ -637,11 +637,11 @@ newPackages_obj.newpackageUpdate = async (req, res) => {
       general_end = moment(new Date(general_end)).unix();
       updateData.general_end = general_end;
     }
-    if (
-      general_categories &&
-      general_categories !== null &&
-      general_categories !== undefined
-    ) {
+    // if (
+    //   general_categories &&
+    //   general_categories !== null &&
+    //   general_categories !== undefined
+    // ) {
       try {
         const parsedCategories = JSON.parse(general_categories);
         if (Array.isArray(parsedCategories) && parsedCategories.length > 0) {
@@ -650,7 +650,7 @@ newPackages_obj.newpackageUpdate = async (req, res) => {
       } catch (error) {
         console.log("--categories error");
       }
-    }
+    // }
 
     if (
       general_range &&
