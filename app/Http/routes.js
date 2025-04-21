@@ -42,6 +42,9 @@ const upload = multer({ dest: "uploads/" });
 router.post(
   "/newpackage/",
   middleware.uploadImage,
+  cruiseValidator,
+  validateResult,
+  validateCruiseImages,
   newPackageController.newpackageSave
 );
 router.get("/newpackage/", newPackageController.newpackageGet);
