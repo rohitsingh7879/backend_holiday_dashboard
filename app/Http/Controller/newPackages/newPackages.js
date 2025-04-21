@@ -642,14 +642,17 @@ newPackages_obj.newpackageUpdate = async (req, res) => {
     //   general_categories !== null &&
     //   general_categories !== undefined
     // ) {
-      try {
-        const parsedCategories = JSON.parse(general_categories);
-        if (Array.isArray(parsedCategories) && parsedCategories.length > 0) {
-          updateData.general_categories = parsedCategories;
-        }
-      } catch (error) {
-        console.log("--categories error");
+    try {
+      const parsedCategories = JSON.parse(general_categories);
+      if (
+        Array.isArray(parsedCategories)
+        // && parsedCategories.length > 0
+      ) {
+        updateData.general_categories = parsedCategories;
       }
+    } catch (error) {
+      console.log("--categories error");
+    }
     // }
 
     if (
