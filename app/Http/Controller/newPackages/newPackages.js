@@ -678,25 +678,6 @@ newPackages_obj.newpackageUpdate = async (req, res) => {
     if (overview && overview !== null && overview !== undefined) {
       updateData.overview = overview;
     }
-    // if (whats_included && whats_included !== null && whats_included !== undefined) {
-    //   whats_included = JSON.parse(whats_included);
-    //   if (Array.isArray(whats_included) && whats_included.length > 0) {
-    //       const updatedwhatInculded = [];
-    //       for (const [index, whatIncludedItem] of whats_included.entries()) {
-    //           const icon = whatIncludedItem.icon ||
-    //                        (req.files['whats_included[]']?.[index]
-    //                            ? await customFunction.uploadImageOnAwsReturnUrl(req.files['whats_included[]'][index])
-    //                            : null);
-
-    //           updatedwhatInculded.push({
-    //               name: whatIncludedItem?.name || "",
-    //               icon: icon,
-    //           });
-    //       }
-
-    //       updateData.whats_included = updatedwhatInculded;
-    //   }
-    // }
 
     if (
       whats_included &&
@@ -736,23 +717,6 @@ newPackages_obj.newpackageUpdate = async (req, res) => {
         console.error("Error parsing tour_list:", error);
       }
     }
-
-    // if (addOn && addOn !== null && addOn !== undefined) {
-    //   addOn = JSON.parse(addOn);
-    //   if (Array.isArray(addOn) && addOn.length > 0) {
-    //     const updatedaddOn= [];
-    //     for (const [index, addOnItem] of addOn.entries()) {
-    //       const icon = addOnItem.icon || (req.files['addOn[]']?.[index]
-    //         ? await customFunction.uploadImageOnAwsReturnUrl(req.files['addOn[]'][index])
-    //         : null);
-    //         updatedaddOn.push({
-    //         name: addOnItem?.name || "",
-    //         icon: icon,
-    //       });
-    //     }
-    //     updateData.addOn = updatedaddOn;
-    //   }
-    // }
 
     if (addOn && addOn !== null && addOn !== undefined) {
       try {
@@ -1041,71 +1005,103 @@ newPackages_obj.newpackageUpdate = async (req, res) => {
     }
     // console.log("---updateData tour_list--- ",updateData.tour_list);
 
-    let cruiseImageBase64 = null;
-    if (cruise_image) {
-      cruiseImageBase64 = cruise_image;
-    } else if (req.files["cruise_image"]?.[0]) {
-      cruiseImageBase64 = await customFunction.uploadImageOnAwsReturnUrl(
-        req.files["cruise_image"]?.[0]
-      );
-    }
-    if (
-      cruiseImageBase64 &&
-      cruiseImageBase64 !== null &&
-      cruiseImageBase64 !== undefined
-    ) {
-      updateData.cruise_image = cruiseImageBase64;
-    }
-
-    let salesBannerImageBase64 = null;
-    if (sales_banner_image) {
-      salesBannerImageBase64 = sales_banner_image;
-    } else if (req.files["sales_banner_image"]?.[0]) {
-      salesBannerImageBase64 = await customFunction.uploadImageOnAwsReturnUrl(
-        req.files["sales_banner_image"]?.[0]
-      );
-    }
-    if (
-      salesBannerImageBase64 &&
-      salesBannerImageBase64 !== null &&
-      salesBannerImageBase64 !== undefined
-    ) {
-      updateData.sales_banner_image = salesBannerImageBase64;
-    }
-
-    let cruiseBannerImageBase64 = null;
-    if (cruise_banner_image) {
-      cruiseBannerImageBase64 = cruise_banner_image;
-    } else if (req.files["cruise_banner_image"]?.[0]) {
-      cruiseBannerImageBase64 = await customFunction.uploadImageOnAwsReturnUrl(
-        req.files["cruise_banner_image"]?.[0]
-      );
-    }
-    if (
-      cruiseBannerImageBase64 &&
-      cruiseBannerImageBase64 !== null &&
-      cruiseBannerImageBase64 !== undefined
-    ) {
-      updateData.cruise_banner_image = cruiseBannerImageBase64;
-    }
-
-    let mobileCruiseBannerImageBase64 = null;
-    if (mobile_cruise_banner_image) {
-      mobileCruiseBannerImageBase64 = mobile_cruise_banner_image;
-    } else if (req.files["mobile_cruise_banner_image"]?.[0]) {
-      mobileCruiseBannerImageBase64 =
-        await customFunction.uploadImageOnAwsReturnUrl(
-          req.files["mobile_cruise_banner_image"]?.[0]
+    const handleImageUpload = async (inputImage, fileKey, req) => {
+      if (inputImage) {
+        return inputImage;
+      } else if (req.files[fileKey]?.[0]) {
+        return await customFunction.uploadImageOnAwsReturnUrl(
+          req.files[fileKey]?.[0]
         );
-    }
+      }
+      return null;
+    };
 
-    if (
-      mobileCruiseBannerImageBase64 &&
-      mobileCruiseBannerImageBase64 !== null &&
-      mobileCruiseBannerImageBase64 !== undefined
-    ) {
-      updateData.mobile_cruise_banner_image = mobileCruiseBannerImageBase64;
-    }
+    updateData.cruise_image = await handleImageUpload(
+      cruise_image,
+      "cruise_image",
+      req
+    );
+    updateData.sales_banner_image = await handleImageUpload(
+      sales_banner_image,
+      "sales_banner_image",
+      req
+    );
+    updateData.cruise_banner_image = await handleImageUpload(
+      cruise_banner_image,
+      "cruise_banner_image",
+      req
+    );
+    updateData.mobile_cruise_banner_image = await handleImageUpload(
+      mobile_cruise_banner_image,
+      "mobile_cruise_banner_image",
+      req
+    );
+
+    // let cruiseImageBase64 = null;
+    // if (cruise_image) {
+    //   cruiseImageBase64 = cruise_image;
+    // } else if (req.files["cruise_image"]?.[0]) {
+    //   cruiseImageBase64 = await customFunction.uploadImageOnAwsReturnUrl(
+    //     req.files["cruise_image"]?.[0]
+    //   );
+    // }
+    // if (
+    //   cruiseImageBase64 &&
+    //   cruiseImageBase64 !== null &&
+    //   cruiseImageBase64 !== undefined
+    // ) {
+    //   updateData.cruise_image = cruiseImageBase64;
+    // }
+
+    // let salesBannerImageBase64 = null;
+    // if (sales_banner_image) {
+    //   salesBannerImageBase64 = sales_banner_image;
+    // } else if (req.files["sales_banner_image"]?.[0]) {
+    //   salesBannerImageBase64 = await customFunction.uploadImageOnAwsReturnUrl(
+    //     req.files["sales_banner_image"]?.[0]
+    //   );
+    // }
+    // if (
+    //   salesBannerImageBase64 &&
+    //   salesBannerImageBase64 !== null &&
+    //   salesBannerImageBase64 !== undefined
+    // ) {
+    //   updateData.sales_banner_image = salesBannerImageBase64;
+    // }
+
+    // let cruiseBannerImageBase64 = null;
+    // if (cruise_banner_image) {
+    //   cruiseBannerImageBase64 = cruise_banner_image;
+    // } else if (req.files["cruise_banner_image"]?.[0]) {
+    //   cruiseBannerImageBase64 = await customFunction.uploadImageOnAwsReturnUrl(
+    //     req.files["cruise_banner_image"]?.[0]
+    //   );
+    // }
+    // if (
+    //   cruiseBannerImageBase64 &&
+    //   cruiseBannerImageBase64 !== null &&
+    //   cruiseBannerImageBase64 !== undefined
+    // ) {
+    //   updateData.cruise_banner_image = cruiseBannerImageBase64;
+    // }
+
+    // let mobileCruiseBannerImageBase64 = null;
+    // if (mobile_cruise_banner_image) {
+    //   mobileCruiseBannerImageBase64 = mobile_cruise_banner_image;
+    // } else if (req.files["mobile_cruise_banner_image"]?.[0]) {
+    //   mobileCruiseBannerImageBase64 =
+    //     await customFunction.uploadImageOnAwsReturnUrl(
+    //       req.files["mobile_cruise_banner_image"]?.[0]
+    //     );
+    // }
+
+    // if (
+    //   mobileCruiseBannerImageBase64 &&
+    //   mobileCruiseBannerImageBase64 !== null &&
+    //   mobileCruiseBannerImageBase64 !== undefined
+    // ) {
+    //   updateData.mobile_cruise_banner_image = mobileCruiseBannerImageBase64;
+    // }
 
     // Perform the update
     const updateFormData = await formSchemaModel.updateOne(

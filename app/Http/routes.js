@@ -32,6 +32,11 @@ const {
   getAllMembers,
   addSubscriber,
 } = require("./Controller/mailChimp/mailChimpController");
+const {
+  validateCruiseImages,
+  cruiseValidator,
+  validateResult,
+} = require("../validators/CruiseValidator");
 const upload = multer({ dest: "uploads/" });
 // add New Packages cruises
 router.post(
@@ -44,6 +49,9 @@ router.delete("/newpackage/:id", newPackageController.newpackageDelete);
 router.patch(
   "/newpackage/:id",
   middleware.uploadImageUpdate,
+  cruiseValidator,
+  validateResult,
+  validateCruiseImages,
   newPackageController.newpackageUpdate
 );
 router.get(
