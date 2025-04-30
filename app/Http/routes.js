@@ -42,6 +42,7 @@ const {
   socialMediaGet,
   socialMediaUpdate,
   socialMediaDelete,
+  updateSocialMediaStatus,
 } = require("./Controller/socialMedia/socialMediaController");
 const upload = multer({ dest: "uploads/" });
 // add New Packages cruises
@@ -247,6 +248,12 @@ router.delete(
   "/social-media/delete/:id",
   middleware.verifyToken,
   socialMediaDelete
+);
+
+router.put(
+  "/social-media/toggle-status/:id",
+  middleware.verifyToken,
+  updateSocialMediaStatus
 );
 
 module.exports = router;

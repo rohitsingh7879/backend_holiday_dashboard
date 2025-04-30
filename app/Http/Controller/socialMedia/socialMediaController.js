@@ -234,4 +234,49 @@ socialMedia_obj.socialMediaDelete = async (req, res) => {
   }
 };
 
+socialMedia_obj.updateSocialMediaStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const isSocialMediaExist = await SocialMedia.findById(id);
+    if (!isSocialMediaExist) {
+      return res.status(400).json({
+        message: "SocialMedia does not exist",
+        status: 400,
+        success: false,
+      });
+    }
+
+    const updatedStatus = !isSocialMediaExist.status;
+
+    const result = await SocialMedia.findByIdAndUpdate(
+      id,
+      { status: updatedStatus },
+      { new: true }
+    );
+
+    if (result) {
+      return res.status(200).json({
+        message: "SocialMedia status updated successfully!",
+        data: result,
+        status: 200,
+        success: true,
+      });
+    } else {
+      return res.status(500).json({
+        message: "Error updating SocialMedia status",
+        status: 500,
+        success: false,
+      });
+    }
+  } catch (error) {
+    return res.status(500).json({
+      message: "Internal Server Error",
+      error: error?.message,
+      status: 500,
+      success: false,
+    });
+  }
+};
+
 module.exports = socialMedia_obj;
