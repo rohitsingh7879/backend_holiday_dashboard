@@ -4,11 +4,11 @@ const socialMediaSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      default: null,
+      required: true,
     },
     link: {
       type: String,
-      default: null,
+      required: true,
     },
     iconImg: {
       type: String,

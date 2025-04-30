@@ -230,7 +230,11 @@ router.post(
   socialMediaSave
 );
 
-router.get("/social-media/getAll", middleware.verifyToken, socialMediaGet);
+router.get(
+  "/social-media/getAll", 
+  middleware.verifyToken,
+   socialMediaGet
+  );
 
 router.put(
   "/social-media/update/:id",
