@@ -37,6 +37,12 @@ const {
   cruiseValidator,
   validateResult,
 } = require("../validators/CruiseValidator");
+const {
+  socialMediaSave,
+  socialMediaGet,
+  socialMediaUpdate,
+  socialMediaDelete,
+} = require("./Controller/socialMedia/socialMediaController");
 const upload = multer({ dest: "uploads/" });
 // add New Packages cruises
 router.post(
@@ -215,5 +221,28 @@ router.put(
 );
 router.post("/admin/forget-password", forgotPassword);
 router.put("/admin/reset-password", resetPassword);
+
+//social media
+router.post(
+  "/social-media/create",
+  middleware.verifyToken,
+  middleware.uploadSocialMediaImage,
+  socialMediaSave
+);
+
+router.get("/social-media/getAll", middleware.verifyToken, socialMediaGet);
+
+router.put(
+  "/social-media/update/:id",
+  middleware.verifyToken,
+  middleware.uploadSocialMediaImage,
+  socialMediaUpdate
+);
+
+router.delete(
+  "/social-media/delete/:id",
+  middleware.verifyToken,
+  socialMediaDelete
+);
 
 module.exports = router;
