@@ -66,11 +66,9 @@ socialMedia_obj.socialMediaGet = async (req, res) => {
 
     const totalsocialMedia = await SocialMedia.countDocuments();
 
-    const socialMediaResult = await SocialMedia
-      .find()
+    const socialMediaResult = await SocialMedia.find()
       .skip(skip)
       .limit(limitNumber);
-
 
     if (socialMediaResult) {
       return res.status(200).json({
@@ -103,6 +101,59 @@ socialMedia_obj.socialMediaGet = async (req, res) => {
   }
 };
 
+socialMedia_obj.socialMediaGetForUSer = async (req, res) => {
+  try {
+    const { page = 1, limit = 10 } = req.query;
+    const pageNumber = parseInt(page, 10);
+    const limitNumber = parseInt(limit, 10);
+    const filter = { status: true };
+
+    if (pageNumber <= 0 || limitNumber <= 0) {
+      return res.status(400).json({
+        message: "Page and limit must be positive integers.",
+        success: false,
+        data: "",
+      });
+    }
+
+    const skip = (pageNumber - 1) * limitNumber;
+
+    const totalsocialMedia = await SocialMedia.countDocuments(filter);
+
+    const socialMediaResult = await SocialMedia.find(filter)
+      .skip(skip)
+      .limit(limitNumber);
+
+    if (socialMediaResult) {
+      return res.status(200).json({
+        message: "Successfully fetch socila media Data",
+        success: true,
+        data: socialMediaResult,
+        pagination: {
+          page: pageNumber,
+          limit: limitNumber,
+          total: totalsocialMedia,
+          totalPages: Math.ceil(totalsocialMedia / limitNumber),
+        },
+      });
+    } else {
+      res.status(400).json({
+        message: "Error in database",
+        data: "",
+        success: false,
+        status: 400,
+      });
+    }
+  } catch (error) {
+    res.status(500).json({
+      message: "Internal Server Error",
+      data: "",
+      error: error?.message,
+      success: false,
+      status: 500,
+    });
+  }
+};
 
 socialMedia_obj.socialMediaUpdate = async (req, res) => {
   try {
@@ -128,7 +179,7 @@ socialMedia_obj.socialMediaUpdate = async (req, res) => {
       });
     }
 
-    const { name,link,iconImg } = req.body;
+    const { name, link, iconImg } = req.body;
 
     let socialMediaImageBase64 = null;
 

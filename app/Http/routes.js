@@ -43,6 +43,7 @@ const {
   socialMediaUpdate,
   socialMediaDelete,
   updateSocialMediaStatus,
+  socialMediaGetForUSer,
 } = require("./Controller/socialMedia/socialMediaController");
 const upload = multer({ dest: "uploads/" });
 // add New Packages cruises
@@ -235,6 +236,11 @@ router.get(
   "/social-media/getAll", 
   middleware.verifyToken,
    socialMediaGet
+  );
+
+router.get(
+  "/social-media/get-all", 
+   socialMediaGetForUSer
   );
 
 router.put(
