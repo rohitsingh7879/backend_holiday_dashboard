@@ -56,8 +56,8 @@ async function addSubscriber(email, firstName, lastName) {
         email_address: email,
         status: "subscribed", // use "pending" for double opt-in
         merge_fields: {
-          FNAME: firstName,
-          LNAME: lastName,
+          FNAME: firstName || "N/A",
+          LNAME: lastName || "N/A",
         },
       }
     );
